@@ -813,14 +813,20 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ text, page: 'hidden' })
         });
-        const result = await res.json();
-        if (!res.ok || !result.ok) throw new Error(result.error || 'Server error');
+        const raw = await res.text();
+        let result = {};
+        try { result = JSON.parse(raw); } catch {}
+        if (!res.ok || !result.ok) {
+          console.error('Submit failed', res.status, raw);
+          throw new Error(`${res.status} ${result.error || raw.slice(0, 80) || 'no response'}`);
+        }
         addLogEntry(new Date().toLocaleString(), text);
         suggestInput.value = '';
         showToast('Submitted ✓');
       } catch (err) {
         console.error(err);
-        showToast('Could not submit, try again later');
+        // shows the real reason (also in the console / Network tab)
+        showToast('Failed: ' + err.message);
       }
     }
 
