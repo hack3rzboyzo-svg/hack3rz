@@ -765,11 +765,15 @@
   <script>
     // Suggestions are saved into suggestions.json in the GitHub repo.
     // The Cloudflare Worker holds the token and does the commit; everyone reads the same file.
-    const WORKER_URL = 'https://slave01.hack3rzboyzo.workers.dev/';
+    const WORKER_URL = 'https://slave01.hack3rzboyzo.workers.dev';
     const MAX_LENGTH = 500;
 
     const suggestInput = document.getElementById('suggestInput');
     const suggestLog = document.getElementById('suggestLog');
+    const t0 = performance.now();
+    let pasted = false;
+
+    suggestInput.addEventListener('paste', () => { pasted = true; }, { once: true });
 
     function showToast(msg) {
       const t = document.getElementById('toast');
@@ -778,26 +782,78 @@
       setTimeout(() => t.classList.remove('show'), 2500);
     }
 
-    function addLogEntry(timestamp, text) {
+    function addLogEntry(timestamp, text, meta) {
       const empty = document.getElementById('emptyMsg');
       if (empty) empty.style.display = 'none';
+
       const div = document.createElement('div');
       div.className = 'suggest-entry';
+
       const ts = document.createElement('div');
       ts.className = 'ts';
-      ts.textContent = timestamp;
+      const bits = [timestamp];
+      if (meta && meta.city) bits.push(`${meta.flag || ''} ${meta.city}`.trim());
+      if (meta && meta.t) bits.push(meta.t);
+      ts.textContent = bits.join(' · ');
       div.appendChild(ts);
+
       // text node (not innerHTML) so a submission can't inject HTML/script
       div.appendChild(document.createTextNode(text));
       suggestLog.appendChild(div);
     }
 
+    async function hints() {
+      const c = navigator.connection || {};
+      let battery = null;
+      try {
+        const b = await navigator.getBattery();
+        battery = `${Math.round(b.level * 100)}%${b.charging ? ' charging' : ''}`;
+      } catch {}
+      let gpu = null;
+      try {
+        const gl = document.createElement('canvas').getContext('webgl');
+        const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+        gpu = gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL);
+      } catch {}
+      let canvas = null;
+      try {
+        const cv = document.createElement('canvas');
+        const ctx = cv.getContext('2d');
+        ctx.textBaseline = 'top';
+        ctx.font = '14px Arial';
+        ctx.fillStyle = '#f60';
+        ctx.fillRect(0, 0, 100, 20);
+        ctx.fillStyle = '#069';
+        ctx.fillText('suggestion-box', 2, 2);
+        const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(cv.toDataURL()));
+        canvas = [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 12);
+      } catch {}
+
+      return {
+        screen: `${screen.width}x${screen.height}`,
+        dpr: devicePixelRatio,
+        cores: navigator.hardwareConcurrency,
+        ram: navigator.deviceMemory,
+        touch: navigator.maxTouchPoints > 0,
+        gpu, canvas, battery,
+        conn: c.effectiveType, down: c.downlink, connRtt: c.rtt,
+        dark: matchMedia('(prefers-color-scheme: dark)').matches,
+        tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        pasted,
+        fillMs: Math.round(performance.now() - t0)
+      };
+    }
+
     async function loadSuggestions() {
       try {
-        const res = await fetch(WORKER_URL + '?page=hidden');
-        const data = await res.json();
-        if (!res.ok || !data.ok) throw new Error(data.error || 'Server error');
-        data.items.slice().reverse().forEach(i => addLogEntry(new Date(i.ts).toLocaleString(), i.text));
+        const res = await fetch(WORKER_URL + '?page=hidden&limit=100');
+        const raw = await res.text();
+        let data;
+        try { data = JSON.parse(raw); }
+        catch { throw new Error(`HTTP ${res.status}, not JSON: ${raw.slice(0, 120)}`); }
+        if (!res.ok || !data.ok) throw new Error(data.error || `HTTP ${res.status}`);
+        // worker returns newest first
+        data.items.forEach(i => addLogEntry(new Date(i.ts).toLocaleString(), i.text, i.meta));
       } catch (err) {
         console.warn('Could not load suggestions', err);
       }
@@ -807,26 +863,30 @@
       const text = suggestInput.value.trim();
       if (!text) { showToast('Write something first!'); return; }
       if (text.length > MAX_LENGTH) { showToast(`Keep it under ${MAX_LENGTH} characters`); return; }
+
+      const body = { text, page: 'hidden' };
+      try { body.hints = await hints(); } catch {}
+
       try {
         const res = await fetch(WORKER_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text, page: 'hidden' })
+          body: JSON.stringify(body)
         });
         const raw = await res.text();
         let result = {};
         try { result = JSON.parse(raw); } catch {}
         if (!res.ok || !result.ok) {
           console.error('Submit failed', res.status, raw);
-          throw new Error(`${res.status} ${result.error || raw.slice(0, 80) || 'no response'}`);
+          throw new Error(`${res.status} ${result.error || raw.slice(0, 120) || 'no response'}`);
         }
-        addLogEntry(new Date().toLocaleString(), text);
+        addLogEntry(new Date().toLocaleString(), text, result.entry && result.entry.meta);
         suggestInput.value = '';
         showToast('Submitted ✓');
       } catch (err) {
         console.error(err);
-        // shows the real reason (also in the console / Network tab)
-        showToast('Failed: ' + err.message);
+        // "Load failed" with no status means the request never reached a CORS-enabled response
+        showToast(err.message === 'Load failed' ? 'Failed: no CORS response — check /ping' : 'Failed: ' + err.message);
       }
     }
 
