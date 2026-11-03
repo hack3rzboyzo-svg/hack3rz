@@ -1,0 +1,25 @@
+name: suggestions map
+
+on:
+  schedule:
+    - cron: "17 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  map:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node scripts/map.mjs
+      - run: |
+          git config user.name "intel-bot"
+          git config user.email "intel-bot@users.noreply.github.com"
+          git add map.svg
+          git diff --staged --quiet || git commit -m "chore: refresh submission map"
+          git push
