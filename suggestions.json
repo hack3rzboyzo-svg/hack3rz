@@ -164,5 +164,35 @@
       "bot": 0,
       "gh": 0
     }
+  },
+  {
+    "ts": "2026-11-03T14:44:27.433Z",
+    "text": "Lwky put me in members thats aura",
+    "meta": {
+      "hash": "0df905262ecd4cee",
+      "cc": "MY",
+      "flag": "🇲🇾",
+      "city": "Petaling Jaya",
+      "region": "Selangor",
+      "near": null,
+      "lat": 3.10726,
+      "lon": 101.60671,
+      "tz": "Asia/Kuala_Lumpur",
+      "off": 480,
+      "t": "3 Nov 2026, 22:44",
+      "hl": 22,
+      "dow": "Tuesday",
+      "isp": "DiGi Telecommunications Sdn Bhd",
+      "vpn": 0,
+      "tor": 0,
+      "wx": "25°C (feels 30°C), light drizzle, wind 3 km/h, night",
+      "moon": "last quarter (23.2d)",
+      "elev": "49 m",
+      "d": null,
+      "pop": "KIX",
+      "prev": 0,
+      "bot": 0,
+      "gh": 0
+    }
   }
 ]
