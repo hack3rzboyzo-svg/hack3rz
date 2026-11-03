@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>suggestion intel</title>
+<style>
+  :root { --bg:#0b0f14; --fg:#c9d6e2; --dim:#6b7b8c; --line:#1b2530; --acc:#4af; --warn:#f96; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace; padding:24px; }
+  h1 { font-size:15px; letter-spacing:.18em; text-transform:uppercase; color:var(--acc); margin:0 0 4px; }
+  .sub { color:var(--dim); margin-bottom:20px; }
+  a { color:var(--acc); }
+  .panel { border:1px solid var(--line); padding:14px; margin-bottom:20px; }
+  .tallies { display:flex; flex-wrap:wrap; gap:18px; color:var(--dim); }
+  .tallies b { color:var(--fg); }
+  .heat { display:grid; grid-template-columns:repeat(24,1fr); gap:2px; margin-top:12px; }
+  .heat div { height:44px; background:var(--line); position:relative; }
+  .heat div i { position:absolute; bottom:0; left:0; right:0; background:var(--acc); opacity:.7; }
+  .heat-labels { display:grid; grid-template-columns:repeat(24,1fr); gap:2px; margin-top:4px; color:var(--dim); font-size:9px; text-align:center; }
+  .controls { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+  input,select,button { background:#111a22; color:var(--fg); border:1px solid var(--line); padding:6px 9px; font:inherit; }
+  button { cursor:pointer; }
+  button:hover { border-color:var(--acc); }
+  .card { border:1px solid var(--line); margin-bottom:14px; }
+  .card-h { display:flex; flex-wrap:wrap; gap:10px; align-items:center; padding:8px 12px; border-bottom:1px solid var(--line); background:#0e141b; font-size:11px; color:var(--dim); }
+  .card-b { padding:12px; white-space:pre-wrap; word-break:break-word; }
+  .pill { border:1px solid var(--line); padding:1px 6px; font-size:10px; text-transform:uppercase; letter-spacing:.08em; }
+  .pill.vpn { color:var(--warn); border-color:#4a3018; }
+  .pill.new { color:var(--acc); border-color:#1d3a55; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:2px 16px; padding:10px 12px; border-top:1px solid var(--line); font-size:11px; }
+  .grid span { color:var(--dim); }
+  .grid b { color:var(--fg); font-weight:400; }
+  details { padding:0 12px 10px; }
+  summary { color:var(--dim); cursor:pointer; font-size:11px; }
+  pre { overflow:auto; background:#0e141b; padding:10px; border:1px solid var(--line); font-size:11px; }
+  .empty { color:var(--dim); padding:40px 0; text-align:center; }
+</style>
+</head>
+<body>
+<h1>suggestion intel</h1>
+<div class="sub">everything below was captured server-side on submit · <a href="./hidden.html">← back to suggestions</a></div>
+
+<div class="panel" id="panel">loading…</div>
+
+<div class="controls">
+  <input id="q" placeholder="search text / city / isp" size="26">
+  <select id="cc"><option value="">all countries</option></select>
+  <select id="sort">
+    <option value="new">newest</option>
+    <option value="old">oldest</option>
+    <option value="near">nearest to me</option>
+  </select>
+  <button id="vpn">vpn only</button>
+  <button id="reload">reload</button>
+</div>
+
+<div id="list"></div>
+
+<script>
+const WORKER = "https://YOUR-WORKER.workers.dev";
+let items = [], stats = null, vpnOnly = false;
+
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+const ago = ts => {
+  const s = Math.round((Date.now() - Date.parse(ts)) / 1000);
+  if (s < 60) return s + "s ago";
+  if (s < 3600) return Math.round(s / 60) + "m ago";
+  if (s < 86400) return Math.round(s / 3600) + "h ago";
+  return Math.round(s / 86400) + "d ago";
+};
+
+async function load() {
+  document.getElementById("panel").textContent = "loading…";
+  try {
+    const [r1, r2] = await Promise.all([
+      fetch(`${WORKER}?page=hidden&limit=300`),
+      fetch(`${WORKER}?page=hidden&stats=1`)
+    ]);
+    items = (await r1.json()).items || [];
+    stats = (await r2.json()).stats || null;
+    renderPanel();
+    render();
+  } catch (e) {
+    document.getElementById("panel").textContent = "load failed: " + e.message;
+  }
+}
+
+function renderPanel() {
+  const p = document.getElementById("panel");
+  if (!stats) { p.textContent = "no stats"; return; }
+  const max = Math.max(1, ...stats.hours);
+
+  const bars = stats.hours.map((n, h) =>
+    `<div title="${h}:00 — ${n} submission(s)"><i style="height:${(n / max) * 100}%"></i></div>`
+  ).join("");
+  const labels = stats.hours.map((_, h) => `<div>${h}</div>`).join("");
+
+  p.innerHTML = `
+    <div class="tallies">
+      <div><b>${stats.total}</b> entries</div>
+      <div><b>${stats.geotagged}</b> geotagged</div>
+      <div><b>${stats.vpn}</b> via vpn/hosting</div>
+      <div><b>${stats.countries.length}</b> countries</div>
+      <div>top pop: <b>${esc(stats.pops.map(([k]) => k).slice(0, 3).join(" ")) || "—"}</b></div>
+      <div>busiest hour: <b>${stats.hours.indexOf(max)}:00</b></div>
+    </div>
+    <div class="heat">${bars}</div>
+    <div class="heat-labels">${labels}</div>
+    <div style="margin-top:10px;color:var(--dim)">by weekday: ${Object.entries(stats.dows).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${esc(k)} ${v}`).join(" · ") || "—"}</div>
+  `;
+
+  const sel = document.getElementById("cc");
+  const keep = sel.value;
+  sel.innerHTML = `<option value="">all countries</option>` +
+    stats.countries.map(([k, v]) => `<option value="${esc(k)}">${esc(k)} (${v})</option>`).join("");
+  sel.value = keep;
+}
+
+function render() {
+  const q = document.getElementById("q").value.toLowerCase();
+  const cc = document.getElementById("cc").value;
+  const sort = document.getElementById("sort").value;
+
+  let rows = items.filter(i => {
+    const m = i.meta || {};
+    if (vpnOnly && !m.vpn) return false;
+    if (cc && m.cc !== cc) return false;
+    if (q) {
+      const hay = [i.text, m.city, m.region, m.near, m.isp, m.cc].join(" ").toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  if (sort === "old") rows = rows.slice().reverse();
+  if (sort === "near") {
+    rows = rows.slice().sort((a, b) => {
+      const pa = parseFloat(a.meta?.d), pb = parseFloat(b.meta?.d);
+      return (isNaN(pa) ? 1e9 : pa) - (isNaN(pb) ? 1e9 : pb);
+    });
+  }
+
+  const list = document.getElementById("list");
+  if (!rows.length) { list.innerHTML = `<div class="empty">nothing matches</div>`; return; }
+
+  list.innerHTML = rows.map((i, idx) => {
+    const m = i.meta || {};
+    const where = [m.flag, m.city, m.region, m.cc].filter(Boolean).join(" ");
+    const pills = [
+      m.vpn ? `<span class="pill vpn">vpn/hosting</span>` : "",
+      m.tor ? `<span class="pill vpn">tor</span>` : "",
+      m.bot ? `<span class="pill vpn">bot</span>` : "",
+      m.prev === 0 ? `<span class="pill new">first timer</span>` : `<span class="pill">#${(m.prev ?? 0) + 1}</span>`
+    ].join("");
+
+    const fields = [
+      ["local clock", m.t ? `${esc(m.t)} (${esc(m.tz)} UTC${m.off >= 0 ? "+" : ""}${(m.off / 60).toFixed(1)})` : "—"],
+      ["weekday", m.dow],
+      ["place", where || "—"],
+      ["near", m.near],
+      ["distance", m.d],
+      ["weather", m.wx],
+      ["moon", m.moon],
+      ["elevation", m.elev],
+      ["isp", m.isp ? `AS${esc(m.isp)}` : "—"],
+      ["pop", m.pop],
+      ["bot score", m.bot != null ? String(m.bot) : "—"],
+      ["github latency", m.gh != null ? m.gh + "ms" : "—"],
+      ["hash", m.prev != null ? "—" : "—"]
+    ].filter(([, v]) => v);
+
+    return `<div class="card">
+      <div class="card-h">
+        ${pills}
+        <span>${esc(where) || "unknown"}</span>
+        <span>${esc(new Date(i.ts).toISOString().replace("T", " ").slice(0, 19))}</span>
+        <span>${esc(ago(i.ts))}</span>
+        ${m.lat != null ? `<a href="https://www.openstreetmap.org/?mlat=${m.lat}&mlon=${m.lon}#map=11/${m.lat}/${m.lon}" target="_blank" rel="noopener">map</a>` : ""}
+        <button data-copy="${idx}" style="margin-left:auto">copy json</button>
+      </div>
+      <div class="card-b">${esc(i.text)}</div>
+      <div class="grid">${fields.map(([k, v]) => `<div><span>${k}</span> <b>${v}</b></div>`).join("")}</div>
+      <details><summary>raw</summary><pre>${esc(JSON.stringify(i, null, 2))}</pre></details>
+    </div>`;
+  }).join("");
+
+  list.querySelectorAll("[data-copy]").forEach(b => {
+    b.onclick = () => {
+      const row = rows[+b.dataset.copy];
+      navigator.clipboard.writeText(JSON.stringify(row, null, 2));
+      b.textContent = "copied";
+      setTimeout(() => (b.textContent = "copy json"), 1200);
+    };
+  });
+}
+
+document.getElementById("q").oninput = render;
+document.getElementById("cc").onchange = render;
+document.getElementById("sort").onchange = render;
+document.getElementById("vpn").onclick = e => {
+  vpnOnly = !vpnOnly;
+  e.target.style.borderColor = vpnOnly ? "#f96" : "";
+  render();
+};
+document.getElementById("reload").onclick = load;
+
+load();
+</script>
+</body>
+</html>
