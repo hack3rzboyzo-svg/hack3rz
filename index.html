@@ -280,17 +280,8 @@ footer.site-footer {
 
       <div class="game-card">
         <h3>Snake Game 🐍</h3>
-        <p>Play it right here!</p>
-        <button class="btn primary" onclick="startGame()">▶ Play</button>
-
-        <div id="gameContainer" style="display:none;">
-          <iframe id="gameFrame" src="snake.html"></iframe>
-          <div style="display:flex; gap:8px; margin-top:8px;">
-            <button class="btn" onclick="fullscreenGame()">🖥 Fullscreen</button>
-            <button class="btn ghost-red" onclick="closeGame()">❌ Close</button>
-          </div>
-        </div>
-
+        <p>Five modes. Works with keyboard or touch.</p>
+        <a class="btn primary" href="snake.html">▶ Play</a>
         <a class="btn" href="snake.html" download>⬇ Download</a>
       </div>
 
@@ -329,25 +320,6 @@ footer.site-footer {
   <p>Fan Website for JJTHEANIMATOR</p>
 </footer>
 
-<script>
-function startGame() {
-  document.getElementById("gameContainer").style.display = "block";
-}
-
-function fullscreenGame() {
-  let iframe = document.getElementById("gameFrame");
-  if (iframe.requestFullscreen)            iframe.requestFullscreen();
-  else if (iframe.webkitRequestFullscreen) iframe.webkitRequestFullscreen();
-  else if (iframe.msRequestFullscreen)     iframe.msRequestFullscreen();
-}
-
-function closeGame() {
-  let container = document.getElementById("gameContainer");
-  let iframe    = document.getElementById("gameFrame");
-  container.style.display = "none";
-  iframe.src = iframe.src; // reset game
-}
-</script>
 
 </body>
 </html>
