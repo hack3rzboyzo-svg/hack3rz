@@ -749,10 +749,10 @@
     <h2 class="suggest-title">SUGGESTIONS</h2>
     <p class="suggest-subtitle">Drop your edits for the site</p>
     <div class="suggest-box">
-      <textarea id="suggestInput" placeholder="Type your suggestion here..."></textarea>
+      <textarea id="suggestInput" maxlength="500" placeholder="Type your suggestion here..."></textarea>
       <div class="suggest-btn-row">
         <button class="btn-submit" onclick="submitSuggestion()">Submit</button>
-        <button class="btn-clear" onclick="clearAll()">Clear Log</button>
+        <button class="btn-clear" onclick="clearInput()">Clear input</button>
       </div>
       <div class="suggest-log" id="suggestLog">
         <p class="suggest-empty-msg" id="emptyMsg">No suggestions yet.</p>
@@ -763,17 +763,16 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    const SERVER = 'http://localhost:8000';
-    const STORAGE_KEY = 'lunar_suggestions';
+    // Suggestions are stored as GitHub Issues, so everyone sees the same list.
+    // Reads are public; writes go through the Cloudflare Worker (it holds the token).
+    const WORKER_URL = 'https://slave01.hack3rzboyzo.workers.dev/';
+    const GH_OWNER = 'hack3rzboyzo-svg';
+    const GH_REPO = 'hack3rzboyzo-svg.github.io';
+    const GH_LABEL = 'hidden-suggestion'; // <<< must match your GitHub label AND the worker's ALLOWED_LABELS
+    const MAX_LENGTH = 500;
 
-    function getSuggestions() {
-      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
-      catch { return []; }
-    }
-
-    function saveLocal(arr) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
-    }
+    const suggestInput = document.getElementById('suggestInput');
+    const suggestLog = document.getElementById('suggestLog');
 
     function showToast(msg) {
       const t = document.getElementById('toast');
@@ -782,80 +781,64 @@
       setTimeout(() => t.classList.remove('show'), 2500);
     }
 
-    const CLEAR_PASSWORD = 'https://youtube.com/@jijthetuber';
-
-    function renderLog() {
-      const log = document.getElementById('suggestLog');
+    function addLogEntry(timestamp, text) {
       const empty = document.getElementById('emptyMsg');
-      [...log.querySelectorAll('.suggest-entry')].forEach(e => e.remove());
-      const suggestions = getSuggestions();
-      if (suggestions.length === 0) { empty.style.display = ''; return; }
-      empty.style.display = 'none';
-      suggestions.forEach(s => {
-        const div = document.createElement('div');
-        div.className = 'suggest-entry';
-        div.innerHTML = `<div class="ts">${s.timestamp}</div>${escHtml(s.text)}`;
-        log.appendChild(div);
-      });
-      log.scrollTop = log.scrollHeight;
+      if (empty) empty.style.display = 'none';
+      const div = document.createElement('div');
+      div.className = 'suggest-entry';
+      const ts = document.createElement('div');
+      ts.className = 'ts';
+      ts.textContent = timestamp;
+      div.appendChild(ts);
+      // text node (not innerHTML) so a submission can't inject HTML/script
+      div.appendChild(document.createTextNode(text));
+      suggestLog.appendChild(div);
     }
 
-    function escHtml(str) {
-      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    async function loadSuggestions() {
+      try {
+        const url = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/issues?labels=${encodeURIComponent(GH_LABEL)}&state=open&sort=created&direction=desc&per_page=50`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('GitHub API error ' + res.status);
+        const issues = await res.json();
+        if (!Array.isArray(issues) || issues.length === 0) return;
+        issues.forEach(i => addLogEntry(new Date(i.created_at).toLocaleString(), i.body || ''));
+      } catch (err) {
+        console.warn('Could not load suggestions', err);
+      }
     }
 
     async function submitSuggestion() {
-      const input = document.getElementById('suggestInput');
-      const text = input.value.trim();
+      const text = suggestInput.value.trim();
       if (!text) { showToast('Write something first!'); return; }
-
-      const timestamp = new Date().toLocaleString();
-
-      // Save to local log display regardless
-      const arr = getSuggestions();
-      arr.push({ text, timestamp });
-      saveLocal(arr);
-      input.value = '';
-      renderLog();
-
-      // POST to local server → writes to suggestions.txt
+      if (text.length > MAX_LENGTH) { showToast(`Keep it under ${MAX_LENGTH} characters`); return; }
       try {
-        const res = await fetch(`${SERVER}/suggest`, {
+        const res = await fetch(WORKER_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text, timestamp })
+          body: JSON.stringify({ text, label: GH_LABEL })
         });
-        if (res.ok) {
-          showToast('Saved to suggestions.txt ✓');
-        } else {
-          showToast('Logged here · server not running');
-        }
-      } catch {
-        showToast('Logged here · server not running');
+        const result = await res.json();
+        if (!res.ok || !result.ok) throw new Error(result.error || 'Server error');
+        addLogEntry(new Date().toLocaleString(), text);
+        suggestInput.value = '';
+        showToast('Submitted ✓');
+      } catch (err) {
+        console.error(err);
+        showToast('Could not submit, try again later');
       }
     }
 
-    function clearAll() {
-      const password = prompt('Password required to clear the log:');
-      if (password === null) {
-        showToast('Clear cancelled.');
-        return;
-      }
-      if (password !== CLEAR_PASSWORD) {
-        showToast('Wrong password. Log not cleared.');
-        return;
-      }
-      if (!confirm('Clear the local log? (suggestions.txt on disk is untouched)')) return;
-      localStorage.removeItem(STORAGE_KEY);
-      renderLog();
-      showToast('Local log cleared.');
+    function clearInput() {
+      suggestInput.value = '';
+      suggestInput.focus();
     }
 
-    document.getElementById('suggestInput').addEventListener('keydown', e => {
-      if (e.key === 'Enter' && e.ctrlKey) submitSuggestion();
+    suggestInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) submitSuggestion();
     });
 
-    renderLog();
+    window.addEventListener('load', loadSuggestions);
   </script>
 
   <div style="margin-top: 60px; display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
