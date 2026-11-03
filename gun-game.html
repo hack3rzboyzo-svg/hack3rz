@@ -67,7 +67,9 @@ summary{cursor:pointer;min-height:36px;display:flex;align-items:center}
 .st{position:fixed;width:112px;height:112px;margin:-56px 0 0 -56px;border:2px solid rgba(233,236,245,.45);border-radius:50%;display:none;pointer-events:none;z-index:2}
 .st.on{display:block}
 .st i{position:absolute;left:50%;top:50%;width:48px;height:48px;margin:-24px;border-radius:50%;background:rgba(233,236,245,.4)}
-#tip{position:absolute;left:0;right:0;bottom:7%;display:flex;pointer-events:none;transition:opacity .4s}
+#tip{position:absolute;left:0;right:0;bottom:150px;display:flex;pointer-events:none;transition:opacity .4s}
+.fire{position:fixed;z-index:3;right:calc(env(safe-area-inset-right,0px) + 22px);bottom:calc(env(safe-area-inset-bottom,0px) + 26px);width:96px;height:96px;border-radius:50%;border:3px solid #fff;background:var(--bad);color:#fff;font-weight:700;font-size:1.1rem;touch-action:none;-webkit-touch-callout:none;box-shadow:0 4px 18px rgba(0,0,0,.45)}
+.fire.on{filter:brightness(1.25);transform:scale(.94)}
 #tip span{flex:1;text-align:center;color:var(--dim);font-size:.9rem;padding:0 12px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -128,7 +130,8 @@ summary{cursor:pointer;min-height:36px;display:flex;align-items:center}
   <div id="touch" class="hidden">
     <div class="st" id="st-move"><i></i></div>
     <div class="st" id="st-aim"><i></i></div>
-    <div id="tip"><span>Drag on this side to move</span><span>Drag on this side to aim and fire</span></div>
+    <div id="tip"><span>Drag on this side to move</span><span>Hold Fire to shoot. Drag here to aim, or leave it to auto-aim</span></div>
+    <button class="fire" id="fire" aria-label="Fire">Fire</button>
   </div>
 </div>
 
@@ -176,7 +179,7 @@ const KEYS=['<b>WASD</b> to move, mouse to aim, click or Space to fire','<b>Arro
 function syncMenu(){
   paints.forEach(p=>p());
   [...$('#sPlayers').children].forEach(b=>b.disabled=S.controls==='touch'&&b.dataset.v!=='1');
-  $('#keyList').innerHTML=S.controls==='touch'?'<li>Drag the left half of the screen to move. Drag the right half to aim and fire. Touch play is single player.</li>':KEYS.slice(0,S.players).map((t,i)=>`<li style="--c:${COL[i]}"><span>${t}</span></li>`).join('');
+  $('#keyList').innerHTML=S.controls==='touch'?'<li>Drag the left half of the screen to move. Hold the Fire button to shoot. It auto-aims at the nearest enemy, or drag the right half to aim yourself. Touch play is single player.</li>':KEYS.slice(0,S.players).map((t,i)=>`<li style="--c:${COL[i]}"><span>${t}</span></li>`).join('');
   $('#rSpeed').value=S.speed;$('#oSpeed').textContent=S.speed;$('#rDamage').value=S.damage;$('#oDamage').textContent=S.damage;$('#rHealth').value=S.health;$('#oHealth').textContent=S.health;
   $('#rVol').value=Math.round(S.volume*100);$('#bSnd').textContent=S.sound?'Mute':'Unmute';
   const b=ld('os-best',0);$('#best').textContent=b?`Best score: ${b.toLocaleString()}`:'';
@@ -185,6 +188,7 @@ function syncMenu(){
 /* ---------- Game state ---------- */
 let G=null,players=[],enemies=[],bullets=[],parts=[],sc=1,raf=0,last=0,acc=0;
 const walls=[[90,140,220,28],[590,140,220,28],[90,510,220,28],[590,510,220,28],[430,260,28,150],[450,260,120,28]].map(([x,y,w,h])=>({x,y,w,h}));
+let fireHeld=false;
 const keys=new Set(),mouse={x:W/2,y:0,down:false};
 const stick={move:{id:null,x:0,y:0,ox:0,oy:0},aim:{id:null,x:0,y:0,ox:0,oy:0,on:false}};
 const MAP=[{u:'KeyW',d:'KeyS',l:'KeyA',r:'KeyD',f:['Space']},{u:'ArrowUp',d:'ArrowDown',l:'ArrowLeft',r:'ArrowRight',f:['Enter','ShiftRight']},{u:'KeyI',d:'KeyK',l:'KeyJ',r:'KeyL',f:['KeyO']}];
@@ -202,7 +206,7 @@ function spawn(){const n=3+G.wave;for(let i=0;i<n;i++){let x,y,ok,t=0;do{const s
   enemies.push({x,y,r:12,hp:S.health,max:S.health,sp:Math.min(S.speed*(1+.04*(G.wave-1)),S.speed*1.6),flash:0,bias:Math.random()<.5?-1:1,blk:0,ang:0})}}
 
 function readInput(p){
-  if(S.controls==='touch')return{mx:stick.move.x,my:stick.move.y,fire:stick.aim.on};
+  if(S.controls==='touch')return{mx:stick.move.x,my:stick.move.y,fire:fireHeld};
   const m=MAP[p.id];let fire=m.f.some(c=>keys.has(c));if(p.id===0)fire=fire||mouse.down;
   return{mx:keys.has(m.r)-keys.has(m.l),my:keys.has(m.d)-keys.has(m.u),fire}}
 
@@ -212,7 +216,7 @@ function stepPlayer(p){
   if(p.inv>0)p.inv--;if(p.flash>0)p.flash--;if(p.cd>0)p.cd--;if(p.dead)return;
   const inp=readInput(p);let{mx,my}=inp;const len=Math.hypot(mx,my);if(len>1){mx/=len;my/=len}
   p.x+=mx*p.speed;p.y+=my*p.speed;
-  if(S.controls==='touch'){if(stick.aim.on)p.angle=Math.atan2(stick.aim.y,stick.aim.x);else if(len>.2)p.angle=Math.atan2(my,mx)}
+  if(S.controls==='touch'){const t=nearest(p.x,p.y);if(stick.aim.on)p.angle=Math.atan2(stick.aim.y,stick.aim.x);else if(t)p.angle=Math.atan2(t.y-p.y,t.x-p.x);else if(len>.2)p.angle=Math.atan2(my,mx)}
   else if(p.id===0)p.angle=Math.atan2(mouse.y-p.y,mouse.x-p.x);
   else{const t=nearest(p.x,p.y);if(t)p.angle=Math.atan2(t.y-p.y,t.x-p.x);else if(len>0)p.angle=Math.atan2(my,mx)}
   p.x=cl(p.x,p.r,W-p.r);p.y=cl(p.y,p.r,H-p.r);walls.forEach(w=>pushOut(p,w));
@@ -302,7 +306,7 @@ function start(){
   fit();spawn();Sfx.wave();last=performance.now();raf=requestAnimationFrame(frame)}
 function toMenu(){cancelAnimationFrame(raf);G=null;$('#game').classList.add('hidden');$('#menu').classList.remove('hidden');syncMenu()}
 function setPause(v){if(!G||G.over||G.paused===v)return;G.paused=v;$('#pauseOv').classList.toggle('hidden',!v);if(v){keys.clear();mouse.down=false;resetSticks();$('#resume').focus()}else last=performance.now()}
-function resetSticks(){for(const n in stick){const s=stick[n];s.id=null;s.x=s.y=0;s.on=false;$('#st-'+n).classList.remove('on')}}
+function resetSticks(){fireHeld=false;$('#fire').classList.remove('on');for(const n in stick){const s=stick[n];s.id=null;s.x=s.y=0;s.on=false;$('#st-'+n).classList.remove('on')}}
 
 $('#play').onclick=start;$('#again').onclick=start;$('#home').onclick=toMenu;$('#quit').onclick=toMenu;
 $('#resume').onclick=()=>setPause(false);
@@ -333,6 +337,10 @@ tl.addEventListener('pointermove',e=>{for(const n in stick){const s=stick[n];if(
 const endTouch=e=>{for(const n in stick){const s=stick[n];if(s.id===e.pointerId){s.id=null;s.x=s.y=0;s.on=false;$('#st-'+n).classList.remove('on')}}};
 tl.addEventListener('pointerup',endTouch);tl.addEventListener('pointercancel',endTouch);
 tl.addEventListener('contextmenu',e=>e.preventDefault());
+const fb=$('#fire');
+fb.addEventListener('pointerdown',e=>{e.stopPropagation();if(!G||G.paused||G.over)return;Sfx.init();fireHeld=true;fb.classList.add('on');fb.setPointerCapture(e.pointerId);$('#tip').style.opacity=0});
+const fbUp=()=>{fireHeld=false;fb.classList.remove('on')};
+fb.addEventListener('pointerup',fbUp);fb.addEventListener('pointercancel',fbUp);
 
 syncMenu();
 })();
