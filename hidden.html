@@ -763,12 +763,9 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    // Suggestions are stored as GitHub Issues, so everyone sees the same list.
-    // Reads are public; writes go through the Cloudflare Worker (it holds the token).
+    // Suggestions are saved into suggestions.json in the GitHub repo.
+    // The Cloudflare Worker holds the token and does the commit; everyone reads the same file.
     const WORKER_URL = 'https://slave01.hack3rzboyzo.workers.dev/';
-    const GH_OWNER = 'hack3rzboyzo-svg';
-    const GH_REPO = 'hack3rzboyzo-svg.github.io';
-    const GH_LABEL = 'hidden-suggestion'; // <<< must match your GitHub label AND the worker's ALLOWED_LABELS
     const MAX_LENGTH = 500;
 
     const suggestInput = document.getElementById('suggestInput');
@@ -797,12 +794,10 @@
 
     async function loadSuggestions() {
       try {
-        const url = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/issues?labels=${encodeURIComponent(GH_LABEL)}&state=open&sort=created&direction=desc&per_page=50`;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error('GitHub API error ' + res.status);
-        const issues = await res.json();
-        if (!Array.isArray(issues) || issues.length === 0) return;
-        issues.forEach(i => addLogEntry(new Date(i.created_at).toLocaleString(), i.body || ''));
+        const res = await fetch(WORKER_URL + '?page=hidden');
+        const data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.error || 'Server error');
+        data.items.slice().reverse().forEach(i => addLogEntry(new Date(i.ts).toLocaleString(), i.text));
       } catch (err) {
         console.warn('Could not load suggestions', err);
       }
@@ -816,7 +811,7 @@
         const res = await fetch(WORKER_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text, label: GH_LABEL })
+          body: JSON.stringify({ text, page: 'hidden' })
         });
         const result = await res.json();
         if (!res.ok || !result.ok) throw new Error(result.error || 'Server error');
