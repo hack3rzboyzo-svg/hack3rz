@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Snake Collection</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -15,7 +15,12 @@
     align-items: center;
     justify-content: center;
     min-height: 100vh;
+    min-height: 100dvh;
+    padding: 12px;
     user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior: none;
   }
   h1 { font-size: 2rem; color: #4caf50; letter-spacing: 0.2em; margin-bottom: 0.3em; }
   .subtitle { font-size: 0.8rem; color: #555; margin-bottom: 2em; }
@@ -45,21 +50,41 @@
 
   #game-wrapper { display: none; flex-direction: column; align-items: center; gap: 0.5em; }
   #game-title { font-size: 1.2rem; letter-spacing: 0.15em; }
-  canvas { display: block; border: 1px solid #2a4a2a; border-radius: 4px; image-rendering: pixelated; cursor: crosshair; }
+  canvas { display: block; border: 1px solid #2a4a2a; border-radius: 4px; image-rendering: pixelated; cursor: crosshair; touch-action: none; max-width: 100%; max-height: calc(100vh - 250px); max-height: calc(100dvh - 250px); width: auto; height: auto; }
   .controls { font-size: 0.7rem; color: #3a5a3a; }
   #hud { font-size: 0.8rem; color: #667766; display: flex; gap: 1.5em; }
-  #menu-back {
+  #menu-back, #restart-btn {
     margin-top: 0.4em;
     background: none; border: 1px solid #2a4a2a; color: #4caf50;
     padding: 0.4em 1.2em; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 0.85rem;
   }
-  #menu-back:hover { background: #0d2a0d; }
+  #menu-back:hover, #restart-btn:hover { background: #0d2a0d; }
+  #menu-back, #restart-btn, .menu-btn { touch-action: manipulation; }
+  .home { display: inline-block; color: #4caf50; text-decoration: none; font-size: 0.85rem; margin-bottom: 1em; }
+  .home:hover { text-decoration: underline; }
+  .game-btns { display: flex; gap: 0.6em; }
+  #menu-back, #restart-btn { min-height: 40px; }
+  #dpad { display: none; grid-template-columns: repeat(3, 64px); grid-template-rows: repeat(3, 56px); gap: 6px; margin-top: 0.4em; }
+  #dpad button { background: #161b22; border: 1px solid #2a4a2a; color: #88d888; border-radius: 10px; font-size: 1.3rem; touch-action: manipulation; cursor: pointer; }
+  #dpad button:active { background: #0d2a0d; border-color: #4caf50; }
+  #dpad [data-d="up"]    { grid-column: 2; grid-row: 1; }
+  #dpad [data-d="left"]  { grid-column: 1; grid-row: 2; }
+  #dpad [data-d="right"] { grid-column: 3; grid-row: 2; }
+  #dpad [data-d="down"]  { grid-column: 2; grid-row: 3; }
+  @media (pointer: coarse) { #dpad { display: grid; } }
+  @media (pointer: coarse) and (orientation: landscape) and (max-height: 520px) {
+    #game-title, #game-controls { display: none; }
+    canvas { max-height: calc(100dvh - 90px); }
+    #dpad { position: fixed; left: calc(env(safe-area-inset-left, 0px) + 14px); bottom: 14px; opacity: 0.8; }
+  }
+  @media (max-width: 480px) { h1 { font-size: 1.4rem; } .menu-btn .desc { font-size: 0.7rem; } }
 </style>
 </head>
 <body>
 
 <!-- MENU -->
 <div id="menu-screen">
+  <a class="home" href="index.html">← Back to site</a>
   <h1>🐍 SNAKE COLLECTION</h1>
   <p class="subtitle">Five game modes. One legendary snake.</p>
   <div class="menu">
@@ -112,7 +137,16 @@
   <div class="controls" id="game-controls"></div>
   <canvas id="canvas"></canvas>
   <div id="hud"></div>
-  <button id="menu-back" onclick="goMenu()">← Menu</button>
+  <div class="game-btns">
+    <button id="menu-back" onclick="goMenu()">← Menu</button>
+    <button id="restart-btn" onclick="restartGame()">↻ Restart</button>
+  </div>
+  <div id="dpad" aria-label="Direction pad">
+    <button data-d="up" aria-label="Up">▲</button>
+    <button data-d="left" aria-label="Left">◀</button>
+    <button data-d="right" aria-label="Right">▶</button>
+    <button data-d="down" aria-label="Down">▼</button>
+  </div>
 </div>
 
 <script>
@@ -140,13 +174,15 @@ let state = {};
 let loopId = null;
 let rafId = null;
 let lastTime = 0;
+const TOUCH = matchMedia('(pointer: coarse)').matches;
+let aimPtr = null, fireTimer = null, swipe = null, deadAt = 0;
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
 function goMenu() {
   clearInterval(loopId); loopId = null;
   cancelAnimationFrame(rafId); rafId = null;
-  canvas.removeEventListener('mousedown', onMouseDown);
+  clearInterval(fireTimer); aimPtr = null; swipe = null;
   window.removeEventListener('keydown', onKeyDown);
   document.getElementById('menu-screen').style.display = '';
   document.getElementById('game-wrapper').style.display = 'none';
@@ -155,6 +191,7 @@ function goMenu() {
 
 function startGame(m) {
   mode = m;
+  deadAt = 0;
   document.getElementById('menu-screen').style.display = 'none';
   document.getElementById('game-wrapper').style.display = 'flex';
 
@@ -173,19 +210,26 @@ function startGame(m) {
     'doom':      'Arrow keys to move · Click to shoot · R to restart',
   };
   document.getElementById('game-title').textContent = titles[m];
-  document.getElementById('game-controls').textContent = controls[m];
+  const touchControls = {
+    'classic':   'Swipe on the board or use the pad to steer',
+    'golden':    'Swipe or use the pad · Eat the gold apple for power mode',
+    'maze-easy': 'Swipe or use the pad · Avoid blue walls',
+    'maze-hard': 'Swipe or use the pad · Avoid blue walls',
+    'doom':      'Pad to move · Tap or hold on the board to shoot',
+  };
+  document.getElementById('game-controls').textContent = (TOUCH ? touchControls : controls)[m];
 
   if (m === 'doom') {
     canvas.width = 700; canvas.height = 500;
     state = createDoomState();
     canvas.style.cursor = 'crosshair';
-    canvas.addEventListener('mousedown', onMouseDown);
     lastTime = performance.now();
     const doomLoop = () => {
       const now = performance.now();
       const dt = (now - lastTime) / 1000;
       lastTime = now;
       if (!state.gameOver) state = stepDoom(state, dt);
+      else if (!deadAt) deadAt = now;
       drawDoom();
       updateHUD();
       rafId = requestAnimationFrame(doomLoop);
@@ -201,37 +245,75 @@ function startGame(m) {
   window.addEventListener('keydown', onKeyDown);
 }
 
+const DIRS = { up:[0,-1], down:[0,1], left:[-1,0], right:[1,0] };
+const KEY_DIRS = { ArrowUp:'up', ArrowDown:'down', ArrowLeft:'left', ArrowRight:'right', w:'up', s:'down', a:'left', d:'right' };
+
+function steer(name) {
+  if (!mode) return;
+  const [dx, dy] = DIRS[name];
+  if (mode === 'doom') { state.nextDir = { x: dx, y: dy }; return; }
+  const d = { x: dx * CELL, y: dy * CELL };
+  if (!opposite(d, state.moved || state.direction)) state.direction = d;
+}
+
+function restartGame() {
+  if (!mode) return;
+  deadAt = 0;
+  if (mode === 'doom') { state = createDoomState(); lastTime = performance.now(); }
+  else resetSnakeGame();
+}
+
 function onKeyDown(e) {
-  const dirs = {
-    ArrowUp:    { x: 0, y: -CELL },
-    ArrowDown:  { x: 0, y: CELL },
-    ArrowLeft:  { x: -CELL, y: 0 },
-    ArrowRight: { x: CELL, y: 0 },
-  };
-  const doomDirs = {
-    ArrowUp:    { x: 0, y: -1 },
-    ArrowDown:  { x: 0, y: 1 },
-    ArrowLeft:  { x: -1, y: 0 },
-    ArrowRight: { x: 1, y: 0 },
-  };
-  if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault();
-
-  if (mode === 'doom') {
-    if (doomDirs[e.key]) state.nextDir = doomDirs[e.key];
-    if (e.key === 'r' || e.key === 'R') { state = createDoomState(); lastTime = performance.now(); }
-  } else {
-    if (dirs[e.key] && !opposite(dirs[e.key], state.direction)) state.direction = dirs[e.key];
-    if (e.key === 'r' || e.key === 'R') resetSnakeGame();
-  }
+  if (e.key.startsWith('Arrow')) e.preventDefault();
+  const dir = KEY_DIRS[e.key.length === 1 ? e.key.toLowerCase() : e.key];
+  if (dir) steer(dir);
+  if (e.key === 'r' || e.key === 'R') restartGame();
 }
 
-function onMouseDown(e) {
-  if (mode !== 'doom') return;
+// Pointer input (mouse, touch, pen): shoot in Doom mode, swipe to steer elsewhere
+function canvasPos(e) {
   const rect = canvas.getBoundingClientRect();
-  const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
-  const my = (e.clientY - rect.top) * (canvas.height / rect.height);
-  state = shootDoom(state, mx, my);
+  return [(e.clientX - rect.left) * (canvas.width / rect.width),
+          (e.clientY - rect.top) * (canvas.height / rect.height)];
 }
+canvas.addEventListener('pointerdown', e => {
+  if (!mode) return;
+  if (mode === 'doom') {
+    if (state.gameOver) { if (deadAt && performance.now() - deadAt > 700) restartGame(); return; }
+    const [mx, my] = canvasPos(e);
+    state = shootDoom(state, mx, my);
+    if (e.pointerType !== 'mouse') {           // hold a finger down to keep firing
+      aimPtr = { id: e.pointerId, mx, my };
+      clearInterval(fireTimer);
+      fireTimer = setInterval(() => {
+        if (aimPtr && mode === 'doom') state = shootDoom(state, aimPtr.mx, aimPtr.my);
+      }, 150);
+      canvas.setPointerCapture(e.pointerId);
+    }
+  } else {
+    swipe = { id: e.pointerId, x: e.clientX, y: e.clientY };
+    canvas.setPointerCapture(e.pointerId);
+  }
+});
+canvas.addEventListener('pointermove', e => {
+  if (aimPtr && e.pointerId === aimPtr.id) [aimPtr.mx, aimPtr.my] = canvasPos(e);
+  if (swipe && e.pointerId === swipe.id) {
+    const dx = e.clientX - swipe.x, dy = e.clientY - swipe.y;
+    if (Math.hypot(dx, dy) >= 24) {
+      steer(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up'));
+      swipe.x = e.clientX; swipe.y = e.clientY;
+    }
+  }
+});
+const endPointer = e => {
+  if (aimPtr && e.pointerId === aimPtr.id) { aimPtr = null; clearInterval(fireTimer); }
+  if (swipe && e.pointerId === swipe.id) swipe = null;
+};
+canvas.addEventListener('pointerup', endPointer);
+canvas.addEventListener('pointercancel', endPointer);
+
+document.querySelectorAll('#dpad button').forEach(b =>
+  b.addEventListener('pointerdown', e => { e.preventDefault(); steer(b.dataset.d); }));
 
 // =============================================================================
 // SNAKE GAMES (Classic / Golden / Maze)
@@ -243,6 +325,7 @@ function resetSnakeGame() {
     direction: { x: CELL, y: 0 },
     score: 0,
     flash: 0,
+    moved: null,
     gameOver: false,
   };
 
@@ -304,6 +387,7 @@ function snakeTick() {
     y: state.snake[0].y + state.direction.y,
   };
 
+  state.moved = state.direction;
   const outBounds = head.x < 0 || head.x >= W || head.y < 0 || head.y >= H;
   const selfHit = state.snake.some(s => s.x === head.x && s.y === head.y);
   const wallHit = state.walls ? state.walls.has(key(head)) : false;
@@ -658,7 +742,7 @@ function drawDoom() {
     ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillText('YOU DIED', W/2, H/2-20);
     ctx.fillStyle='#aaa'; ctx.font='18px monospace';
-    ctx.fillText('Press R to restart', W/2, H/2+24);
+    ctx.fillText('Press R or tap to restart', W/2, H/2+24);
   }
 }
 
