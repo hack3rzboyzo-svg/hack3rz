@@ -584,5 +584,35 @@
       "bot": 0,
       "gh": 0
     }
+  },
+  {
+    "ts": "2026-11-04T06:56:08.954Z",
+    "text": "jew",
+    "meta": {
+      "hash": "eb2e6558e8a3406b",
+      "cc": "MY",
+      "flag": "🇲🇾",
+      "city": "Rawang",
+      "region": "Selangor",
+      "near": null,
+      "lat": 3.3213,
+      "lon": 101.5767,
+      "tz": "Asia/Kuala_Lumpur",
+      "off": 480,
+      "t": "4 Nov 2026, 14:56",
+      "hl": 14,
+      "dow": "Wednesday",
+      "isp": "TMNET",
+      "vpn": 0,
+      "tor": 0,
+      "wx": "33°C (feels 38°C), overcast, wind 8 km/h, daylight",
+      "moon": "last quarter (23.9d)",
+      "elev": "37 m",
+      "d": null,
+      "pop": "HKG",
+      "prev": 0,
+      "bot": 0,
+      "gh": 0
+    }
   }
 ]
