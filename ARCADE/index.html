@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARCADE</title>
+<style>
+/* ===================================================================
+   Site styles for this page.
+   =================================================================== */
+
+:root {
+  --bg: #0b0d12;
+  --bg-soft: #12151c;
+  --card: #161a23;
+  --border: rgba(255,255,255,0.08);
+  --text: #e8ebf2;
+  --muted: #8b93a7;
+  --accent: #7dd3fc;
+  --accent-strong: #38bdf8;
+  --flame-a: #ff5f3d;
+  --flame-b: #ffb020;
+  --radius: 14px;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background:
+    radial-gradient(1200px 600px at 50% -10%, rgba(125,211,252,0.08), transparent 60%),
+    var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+a { color: var(--accent); }
+
+.container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+/* ── HEADER ── */
+header.site-header {
+  padding: 56px 20px 48px;
+  text-align: center;
+  background: linear-gradient(180deg, rgba(255,95,61,0.12), transparent);
+  border-bottom: 1px solid var(--border);
+}
+
+header.site-header h1 {
+  font-size: clamp(2rem, 6vw, 3rem);
+  font-weight: 800;
+  letter-spacing: 1px;
+  background: linear-gradient(90deg, var(--flame-a), var(--flame-b));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+header.site-header p {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+/* ── GENERIC CARD/SECTION ── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+}
+
+section { margin: 48px 0; }
+
+section > h2 {
+  text-align: center;
+  font-size: 1.4rem;
+  margin-bottom: 20px;
+  letter-spacing: 0.5px;
+}
+
+/* ── CHANNEL BOX ── */
+.channel-box {
+  text-align: center;
+  margin-bottom: 36px;
+}
+
+.channel-box a.handle {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 1.05rem;
+}
+.channel-box a.handle:hover { text-decoration: underline; }
+
+.subscribe {
+  display: inline-block;
+  margin-top: 16px;
+  background: linear-gradient(90deg, var(--flame-a), var(--flame-b));
+  padding: 12px 26px;
+  border-radius: 999px;
+  color: #140600;
+  text-decoration: none;
+  font-weight: 700;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.subscribe:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(255,120,30,0.25); }
+
+/* ── VIDEO GRID ── */
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.video-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.video-card .frame-wrap {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%; /* 16:9 */
+  background: #000;
+}
+
+.video-card iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.video-card .video-title {
+  padding: 12px 16px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+/* ── GAME / DOWNLOAD CARDS ── */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.game-card, .download-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.game-card h3, .download-card h3 { font-size: 1.05rem; }
+.game-card p, .download-card p { color: var(--muted); font-size: 0.9rem; }
+
+.game-card iframe {
+  width: 100%;
+  height: 280px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+
+/* ── BUTTONS / LINKS ── */
+.btn {
+  display: inline-block;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.88rem;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--bg-soft);
+  color: var(--text);
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+}
+.btn:hover { border-color: var(--accent); transform: translateY(-1px); }
+
+.btn.primary {
+  background: rgba(125,211,252,0.12);
+  border-color: rgba(125,211,252,0.4);
+  color: var(--accent-strong);
+}
+.btn.primary:hover { background: rgba(125,211,252,0.2); }
+
+.btn.ghost-red {
+  background: rgba(255,95,61,0.1);
+  border-color: rgba(255,95,61,0.35);
+  color: #ff9a7a;
+}
+
+/* ── EXTRA LINKS GRID ── */
+.link-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+.link-grid .btn { width: 100%; }
+
+/* ── FOOTER ── */
+footer.site-footer {
+  text-align: center;
+  padding: 30px 20px;
+  margin-top: 60px;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <h1>ARCADE</h1>
+  <p>Pick a game • Beat the high scores</p>
+</header>
+<div class="container">
+  <section>
+    <h2>🎮 Games I Coded While Bored</h2>
+    <div class="card-grid">
+      <div class="game-card">
+        <h3>Stack Attack 🧱</h3>
+        <p>Falling blocks. Keyboard or touch. Global high scores.</p>
+        <a class="btn primary" href="stackattack.html">▶ Play</a>
+      </div>
+      <div class="game-card">
+        <h3>Block Smash 💥</h3>
+        <p>Drag pieces, clear rows and columns. Global high scores.</p>
+        <a class="btn primary" href="blocksmash.html">▶ Play</a>
+      </div>
+      <div class="game-card">
+        <h3>Maze Muncher 🟡</h3>
+        <p>Eat the dots, dodge the ghosts. Global high scores.</p>
+        <a class="btn primary" href="mazemuncher.html">▶ Play</a>
+      </div>
+      <div class="game-card">
+        <h3>Hell Corridor 👹</h3>
+        <p>Survive the demon waves. Global high scores.</p>
+        <a class="btn primary" href="hellcorridor.html">▶ Play</a>
+      </div>
+      <div class="game-card">
+        <h3>Snake Game 🐍</h3>
+        <p>Five modes. Works with keyboard or touch.</p>
+        <a class="btn primary" href="snake.html">▶ Play</a>
+        <a class="btn" href="snake.html" download>⬇ Download &amp; Play Offline</a>
+      </div>
+      <div class="game-card">
+        <h3>Multiplayer Shooter Game 🔫</h3>
+        <p>Think you can beat me?</p>
+        <a class="btn primary" href="gun-game.html">▶ Play</a>
+        <a class="btn" href="gun-game.html" download>⬇ Download &amp; Play Offline</a>
+      </div>
+      <div class="game-card">
+        <h3>Free Minecraft 🧱⛏️</h3>
+        <p>Enjoy!</p>
+        <a class="btn primary" href="https://us1.proxysite.com/process.php?d=FvivHw2rssochVut8U5JBdc%3D&amp;b=1&amp;f=norefer">▶ Download</a>
+      </div>
+    </div>
+  </section>
+  <section>
+    <div class="link-grid"><a href="../index.html" class="btn">🏠 Back to Site</a></div>
+  </section>
+</div>
+<footer class="site-footer"><p>Fan Website for JJTHEANIMATOR</p></footer>
+</body>
+</html>
