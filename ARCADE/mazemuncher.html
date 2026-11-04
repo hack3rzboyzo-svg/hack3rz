@@ -9,7 +9,7 @@ const build=()=>{M=HF.map(h=>[...h+[...h].slice(0,9).reverse().join('')]);dots=M
 can=(x,y,gd)=>{if((x<0||x>18)&&y!=9)return 0;const t=(M[y]||[])[(x+19)%19];return t!==undefined&&t!='#'&&(t!='-'||gd)},
 pos=e=>({x:e.x+e.dx*e.p,y:e.y+e.dy*e.p});
 function place(){
-  pc={x:9,y:18,dx:0,dy:0,p:0,wx:0,wy:0,a:0};
+  pc={x:9,y:18,dx:0,dy:0,p:0,wx:-1,wy:0,a:Math.PI};
   gs=[[9,7,0],[8,9,2],[9,9,5],[10,9,8]].map(([x,y,h],i)=>({x,y,dx:i?0:-1,dy:0,p:0,h:Math.max(0,h-lvl*.5),e:0,ins:i>0}));
   fr=0;wait=1.5;
 }
@@ -45,7 +45,7 @@ const want=(x,y)=>{
 };
 A.press('L',()=>want(-1,0));A.press('R',()=>want(1,0));A.press('U',()=>want(0,-1));A.press('D',()=>want(0,1));
 function tick(dt){
-  tm+=dt;
+  dt/=1000;tm+=dt;
   if(wait>0){wait-=dt;draw();return}
   if(fr>0)fr-=dt;
   const e=pc;e.p+=6.5*dt;

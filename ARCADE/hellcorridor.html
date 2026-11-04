@@ -7,7 +7,7 @@ MP=['1111111111111111','1000000000000001','1022200000033001','1000000000000001',
 WC=[0,[200,70,50],[130,130,140],[60,90,220]],
 cell=(x,y)=>(MP[y|0]||[])[x|0];
 let px,py,a,hp,sc,kills,en,cd,fl,hu,sp,dead,tm;
-function reset(){px=py=1.5;a=.78;hp=100;sc=kills=0;en=[];cd=fl=hu=sp=0;dead=0;tm=0;A.run(tick)}
+function reset(){px=py=1.5;a=.15;hp=100;sc=kills=0;en=[];cd=fl=hu=sp=0;dead=0;tm=0;A.run(tick)}
 const mv=(x,y)=>{if(!cell(px+x+Math.sign(x)*.25,py))px+=x;if(!cell(px,py+y+Math.sign(y)*.25))py+=y};
 function fire(){
   if(dead||cd>0)return;cd=.45;fl=.1;
@@ -24,7 +24,7 @@ function fire(){
 A.press('A',fire,100);
 A.c.onpointerdown=e=>{e.preventDefault();fire()};
 function tick(dt){
-  tm+=dt;cd-=dt;fl-=dt;hu-=dt;
+  dt/=1000;tm+=dt;cd-=dt;fl-=dt;hu-=dt;
   const h=A.held,dx=Math.cos(a),dy=Math.sin(a),t=((h.R|0)-(h.L|0))*2.4*dt;
   if(h.B)mv(-dy*t,dx*t);else a+=t;
   const f=((h.U|0)-(h.D|0))*3*dt;mv(dx*f,dy*f);
