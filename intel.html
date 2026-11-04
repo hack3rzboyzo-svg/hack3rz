@@ -19,7 +19,7 @@
   .heat div { height:44px; background:var(--line); position:relative; }
   .heat div i { position:absolute; bottom:0; left:0; right:0; background:var(--acc); opacity:.7; }
   .heat-labels { display:grid; grid-template-columns:repeat(24,1fr); gap:2px; margin-top:4px; color:var(--dim); font-size:9px; text-align:center; }
-  .controls { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+  .controls { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; align-items:center; }
   input,select,button { background:#111a22; color:var(--fg); border:1px solid var(--line); padding:6px 9px; font:inherit; }
   button { cursor:pointer; }
   button:hover { border-color:var(--acc); }
@@ -58,6 +58,11 @@
   </select>
   <button id="vpn">vpn only</button>
   <button id="reload">reload</button>
+  <span id="lockbox">
+    <input id="pass" type="password" placeholder="password for raw ips" size="20">
+    <button id="unlock">unlock</button>
+  </span>
+  <span id="locked-note" style="color:#6b7b8c">ips masked</span>
 </div>
 
 <div id="list"></div>
@@ -67,9 +72,14 @@ const WORKER = new URLSearchParams(location.search).get("w")
   || localStorage.getItem("worker")
   || "https://slave01.hack3rzboyzo.workers.dev";
 
+const PASS_HASH = "PASTE_THE_64_HEX_CHARS_HERE";
+const UNLOCK_KEY = "intel_unlocked";
+
 let items = [], stats = null, vpnOnly = false;
+let unlocked = sessionStorage.getItem(UNLOCK_KEY) === "1";
 
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+const maskIp = ip => (unlocked || !ip) ? ip : "•••.•••.•••.•••";
 const ago = ts => {
   const s = Math.round((Date.now() - Date.parse(ts)) / 1000);
   if (s < 60) return s + "s ago";
@@ -181,7 +191,7 @@ function render() {
     const h = m.h || {};
     const where = [m.flag, m.city, m.region, m.cc].filter(Boolean).join(" ");
     const pills = [
-      m.ip ? `<span class="pill ip">${esc(m.ip)}</span>` : "",
+      m.ip ? `<span class="pill ip">${esc(maskIp(m.ip))}</span>` : "",
       m.vpn ? `<span class="pill vpn">vpn/hosting</span>` : "",
       m.tor ? `<span class="pill vpn">tor</span>` : "",
       m.bot ? `<span class="pill vpn">bot</span>` : "",
@@ -230,7 +240,7 @@ function render() {
         <span>${esc(new Date(i.ts).toISOString().replace("T", " ").slice(0, 19))}</span>
         <span>${esc(ago(i.ts))}</span>
         ${m.lat != null ? `<a href="https://www.openstreetmap.org/?mlat=${m.lat}&mlon=${m.lon}#map=11/${m.lat}/${m.lon}" target="_blank" rel="noopener">map</a>` : ""}
-        ${m.ip ? `<a href="https://ipinfo.io/${esc(m.ip)}" target="_blank" rel="noopener">ipinfo</a>` : ""}
+        ${m.ip && unlocked ? `<a href="https://ipinfo.io/${esc(m.ip)}" target="_blank" rel="noopener">ipinfo</a>` : ""}
         <button data-copy="${idx}" style="margin-left:auto">copy json</button>
       </div>
       <div class="card-b">${esc(i.text)}</div>
@@ -241,7 +251,9 @@ function render() {
 
   list.querySelectorAll("[data-copy]").forEach(b => {
     b.onclick = () => {
-      navigator.clipboard.writeText(JSON.stringify(rows[+b.dataset.copy], null, 2));
+      const row = rows[+b.dataset.copy];
+      const out = unlocked ? row : { ...row, meta: { ...(row.meta || {}), ip: undefined } };
+      navigator.clipboard.writeText(JSON.stringify(out, null, 2));
       b.textContent = "copied";
       setTimeout(() => (b.textContent = "copy json"), 1200);
     };
@@ -264,6 +276,33 @@ document.getElementById("vpn").onclick = e => {
 };
 document.getElementById("reload").onclick = load;
 
+function refreshLockUi() {
+  document.getElementById("locked-note").textContent = unlocked ? "ips visible" : "ips masked";
+  document.getElementById("lockbox").style.display = unlocked ? "none" : "";
+}
+
+async function tryUnlock() {
+  const v = document.getElementById("pass").value;
+  if (!v) return;
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(v));
+  const hex = [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+  if (hex === PASS_HASH) {
+    unlocked = true;
+    sessionStorage.setItem(UNLOCK_KEY, "1");
+    document.getElementById("pass").value = "";
+    refreshLockUi();
+    render();
+  } else {
+    document.getElementById("locked-note").textContent = "wrong password";
+  }
+}
+
+document.getElementById("unlock").onclick = tryUnlock;
+document.getElementById("pass").addEventListener("keydown", e => {
+  if (e.key === "Enter") tryUnlock();
+});
+
+refreshLockUi();
 load();
 </script>
 </body>
