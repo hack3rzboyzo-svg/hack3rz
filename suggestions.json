@@ -554,5 +554,35 @@
       "bot": 0,
       "gh": 0
     }
+  },
+  {
+    "ts": "2026-11-04T05:26:53.618Z",
+    "text": "I love this",
+    "meta": {
+      "hash": "5ebb2e237618f6de",
+      "cc": "MY",
+      "flag": "🇲🇾",
+      "city": "Rawang",
+      "region": "Selangor",
+      "near": null,
+      "lat": 3.3213,
+      "lon": 101.5767,
+      "tz": "Asia/Kuala_Lumpur",
+      "off": 480,
+      "t": "4 Nov 2026, 13:26",
+      "hl": 13,
+      "dow": "Wednesday",
+      "isp": "TM TECHNOLOGY SERVICES SDN. BHD.",
+      "vpn": 0,
+      "tor": 0,
+      "wx": "32°C (feels 38°C), overcast, wind 8 km/h, daylight",
+      "moon": "last quarter (23.8d)",
+      "elev": "37 m",
+      "d": null,
+      "pop": "HKG",
+      "prev": 0,
+      "bot": 0,
+      "gh": 0
+    }
   }
 ]
