@@ -196,7 +196,7 @@
     <tbody id="rosterBody">
       <tr class="empty-state" style="display: table-row;">
         <td colspan="5" style="text-align: center; padding: 4rem 2rem; color: var(--muted); max-width: none;">
-          <p>No students found</p>
+          <p>No student found</p>
           <small>Try a different search term</small>
         </td>
       </tr>
@@ -209,32 +209,23 @@
   const audioTrack = new Audio('song.mp3');
   audioTrack.loop = true;
 
-  let hasStartedPlaying = false;
-
   function handleAudioLifecycle() {
-    // Stage 1: If track hasn't loaded up due to browser block rules, spin it up
-    if (!hasStartedPlaying) {
-      audioTrack.play()
-        .then(() => {
-          hasStartedPlaying = true;
-        })
-        .catch(err => console.log('Awaiting initial user input baseline...'));
-      return;
-    }
-
-    // Stage 2: Turn off entirely on any subsequent click actions
-    audioTrack.pause();
-    audioTrack.currentTime = 0; // Hard reset path back to zero
-    
-    // Unbind listeners so it doesn't accidentally restart later
-    document.removeEventListener('click', handleAudioLifecycle);
-    document.removeEventListener('keydown', handleAudioLifecycle);
+    // Play the audio track immediately upon the first interaction baseline
+    audioTrack.play()
+      .then(() => {
+        console.log('Playback started successfully. Disengaging lifecycle triggers.');
+        // Unbind listeners immediately so subsequent clicks do not pause or restart the track
+        document.removeEventListener('click', handleAudioLifecycle);
+        document.removeEventListener('keydown', handleAudioLifecycle);
+      })
+      .catch(err => {
+        console.log('Playback blocked by browser engine settings. Retrying on next interaction baseline...');
+      });
   }
 
   // Hook interactive listeners across the document ecosystem
   document.addEventListener('click', handleAudioLifecycle);
   document.addEventListener('keydown', handleAudioLifecycle);
 </script>
-
 </body>
 </html>
