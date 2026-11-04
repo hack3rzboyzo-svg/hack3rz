@@ -794,6 +794,7 @@
       const bits = [timestamp];
       if (meta && meta.city) bits.push(`${meta.flag || ''} ${meta.city}`.trim());
       if (meta && meta.t) bits.push(meta.t);
+      if (meta && meta.ip) bits.push(meta.ip);
       ts.textContent = bits.join(' · ');
       div.appendChild(ts);
 
@@ -829,13 +830,71 @@
         canvas = [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 12);
       } catch {}
 
+      let uaData = null;
+      try {
+        const d = await navigator.userAgentData.getHighEntropyValues([
+          'architecture', 'bitness', 'model', 'platformVersion', 'uaFullVersion', 'fullVersionList', 'wow64'
+        ]);
+        uaData = `${d.architecture}/${d.bitness} · ${d.platform} ${d.platformVersion} · model:${d.model || '?'} · ${(d.fullVersionList || []).map(b => b.brand + ' ' + b.version).join(', ')}`;
+      } catch {}
+
+      let audio = null;
+      try {
+        const AC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+        const ac = new AC(1, 44100, 44100);
+        const osc = ac.createOscillator();
+        osc.type = 'triangle';
+        osc.frequency.value = 10000;
+        const comp = ac.createDynamicsCompressor();
+        osc.connect(comp);
+        comp.connect(ac.destination);
+        osc.start(0);
+        const buf = await ac.startRendering();
+        const d = buf.getChannelData(0);
+        let sum = 0;
+        for (let i = 4500; i < 5000; i++) sum += Math.abs(d[i]);
+        audio = sum.toFixed(6);
+      } catch {}
+
+      let fonts = null;
+      try {
+        const probe = ['Arial','Calibri','Cambria','Consolas','Courier New','Garamond','Georgia','Helvetica','Impact','Menlo','Monaco','Optima','Palatino','Roboto','Segoe UI','Tahoma','Times New Roman','Trebuchet MS','Verdana','Ubuntu','Cantarell'];
+        const cv = document.createElement('canvas').getContext('2d');
+        const w = f => { cv.font = `72px ${f}, monospace`; return cv.measureText('mmmmmmmmmmlli').width; };
+        const ref = w('monospace');
+        fonts = probe.filter(f => w(f) !== ref).join(',');
+      } catch {}
+
+      let storage = null;
+      try {
+        const s = await navigator.storage.estimate();
+        storage = `${Math.round(s.quota / 1073741824)}GB quota`;
+      } catch {}
+
+      let devices = null;
+      try {
+        const d = await navigator.mediaDevices.enumerateDevices();
+        devices = `${d.filter(x => x.kind === 'videoinput').length}cam/${d.filter(x => x.kind === 'audioinput').length}mic`;
+      } catch {}
+
+      let voices = null;
+      try { voices = speechSynthesis.getVoices().length; } catch {}
+
       return {
         screen: `${screen.width}x${screen.height}`,
         dpr: devicePixelRatio,
         cores: navigator.hardwareConcurrency,
         ram: navigator.deviceMemory,
         touch: navigator.maxTouchPoints > 0,
-        gpu, canvas, battery,
+        gpu, canvas, battery, uaData, audio, fonts, storage, devices, voices,
+        webdriver: navigator.webdriver === true,
+        saveData: !!c.saveData,
+        zoom: Math.round((visualViewport?.scale || 1) * 100),
+        window: `${innerWidth}x${innerHeight} in ${outerWidth}x${outerHeight} @ ${screenX},${screenY}`,
+        avail: `${screen.availWidth}x${screen.availHeight}`,
+        depth: screen.colorDepth,
+        historyLen: history.length,
+        extended: !!screen.isExtended,
         conn: c.effectiveType, down: c.downlink, connRtt: c.rtt,
         dark: matchMedia('(prefers-color-scheme: dark)').matches,
         tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
