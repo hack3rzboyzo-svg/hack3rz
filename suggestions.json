@@ -224,5 +224,35 @@
       "bot": 0,
       "gh": 0
     }
+  },
+  {
+    "ts": "2026-11-04T00:51:17.115Z",
+    "text": "I LOVE KIDS",
+    "meta": {
+      "hash": "5ebb2e237618f6de",
+      "cc": "MY",
+      "flag": "🇲🇾",
+      "city": "Rawang",
+      "region": "Selangor",
+      "near": null,
+      "lat": 3.3213,
+      "lon": 101.5767,
+      "tz": "Asia/Kuala_Lumpur",
+      "off": 480,
+      "t": "4 Nov 2026, 08:51",
+      "hl": 8,
+      "dow": "Wednesday",
+      "isp": "TM TECHNOLOGY SERVICES SDN. BHD.",
+      "vpn": 0,
+      "tor": 0,
+      "wx": "26°C (feels 31°C), overcast, wind 3 km/h, daylight",
+      "moon": "last quarter (23.7d)",
+      "elev": "37 m",
+      "d": null,
+      "pop": "SIN",
+      "prev": 0,
+      "bot": 0,
+      "gh": 0
+    }
   }
 ]
