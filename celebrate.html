@@ -93,7 +93,7 @@ body{
   <p class="lead">You’ve been gifted ∞ N-Pass</p>
   <svg class="flourish" viewBox="0 0 300 36" aria-hidden="true"><use href="#swirl"/></svg>
   <h1 class="gift">Hard R & Soft Ending</h1>
-  <p class="note">This is valid for all of eternity, non transferrable or refundable
+  <p class="note">This is valid for all of eternity, non-transferrable or refundable
   <svg class="flourish small" viewBox="0 0 300 36" aria-hidden="true"><use href="#swirl"/></svg>
   <button class="btn" id="open" type="button">Redeem</button>
   <p class="thanks" id="thanks" aria-live="polite"></p>
@@ -107,7 +107,7 @@ body{
       started=false;
 
   open.addEventListener('click',function(){
-    thanks.textContent='Gift accepted. Enjoy your placeholder.';
+    thanks.textContent='Gift REDEEMED. Enjoy your Pass.';
     this.disabled=true;this.style.opacity='.6';this.style.cursor='default';
 
     if(started)return;
