@@ -101,33 +101,52 @@ body{
   <button class="btn" id="open" type="button">Redeem</button>
   <p class="thanks" id="thanks" aria-live="polite"></p>
 </main>
-<audio id="song" src="celebrate.mp3" preload="auto"></audio>
-<button class="snd" id="snd" type="button" aria-pressed="false">Sound off</button>
+<audio id="song" src="celebrate.mp3" preload="auto" loop></audio>
+<button class="snd" id="snd" type="button" aria-pressed="false" hidden>Sound off</button>
 <script>
 (function(){
-  var song=document.getElementById('song'),snd=document.getElementById('snd'),muted=false;
-  function ui(){var on=!song.paused;snd.textContent=on?'Sound on':'Sound off';snd.setAttribute('aria-pressed',on)}
+  var song=document.getElementById('song'),
+      snd=document.getElementById('snd'),
+      open=document.getElementById('open'),
+      thanks=document.getElementById('thanks'),
+      muted=false,
+      started=false;
+
+  function ui(){
+    var on=!song.paused;
+    snd.textContent=on?'Sound on':'Sound off';
+    snd.setAttribute('aria-pressed',on?'true':'false');
+  }
+
   function play(){
     var p=song.play();
-    if(p&&p.then){p.then(function(){ui();unbind()}).catch(function(){ui()})}
+    if(p&&p.then){
+      p.then(function(){ui()}).catch(function(){muted=true;ui()});
+    }
   }
-  function unlock(e){
-    if(e.target.closest&&e.target.closest('#snd'))return;
-    if(!muted&&song.paused)play();
-  }
-  var evs=['pointerdown','keydown','touchstart'];
-  evs.forEach(function(n){document.addEventListener(n,unlock)});
-  function unbind(){evs.forEach(function(n){document.removeEventListener(n,unlock)})}
-  song.addEventListener('error',function(){snd.hidden=true;unbind()});
-  snd.addEventListener('click',function(){
-    if(song.paused){muted=false;play()}else{muted=true;song.pause();ui()}
-  });
+
+  song.addEventListener('play',ui);
   song.addEventListener('pause',ui);
-  play(); // browsers may block this until the first tap or keypress
-  document.getElementById('open').addEventListener('click',function(){
-    document.getElementById('thanks').textContent='Gift accepted. Enjoy your placeholder.';
+  song.addEventListener('error',function(){snd.hidden=true});
+
+  // Sound toggle only matters once playback has begun
+  snd.addEventListener('click',function(){
+    if(song.paused){muted=false;play()}
+    else{muted=true;song.pause();ui()}
+  });
+
+  open.addEventListener('click',function(){
+    thanks.textContent='Gift accepted. Enjoy your placeholder.';
     this.disabled=true;this.style.opacity='.6';this.style.cursor='default';
-    if(!muted&&song.paused)play();
+
+    if(started)return;
+    started=true;
+
+    if(song.error){snd.hidden=true;return}
+
+    snd.hidden=false;
+    if(!muted)play();          // loop attribute keeps it running
+    else ui();
   });
 })();
 </script>
