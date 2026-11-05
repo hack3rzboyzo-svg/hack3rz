@@ -8,8 +8,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="retro.css">
 <style>
-:root{--bg:#0e111a;--panel:#161b28;--line:#2a3247;--text:#e9ecf5;--dim:#9aa3bb;--accent:#5ee0ff;--bad:#ff6b5e;color-scheme:dark;box-sizing:border-box;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
+:root{--bg:#0a0221;--panel:#140538;--line:#4a1d96;--text:#f3e8ff;--dim:#b9a3e8;--accent:#00f0ff;--bad:#ff2bd6;color-scheme:dark;box-sizing:border-box;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
 html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
 *,*::before,*::after{box-sizing:inherit}
 html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none}
@@ -57,7 +58,7 @@ summary{cursor:pointer;min-height:36px;display:flex;align-items:center}
 .mini{min-height:38px;padding:0 12px;background:transparent;border:1px solid var(--line);border-radius:8px;font-size:.88rem}
 #stage{position:relative;flex:1;min-height:0;display:flex;justify-content:center;align-items:center}
 @media (orientation:portrait){#stage{align-items:flex-start}}
-#cv{display:block;background:#10151f;border:1px solid var(--line);cursor:crosshair;touch-action:none}
+#cv{display:block;background:#0a0221;border:1px solid var(--line);cursor:crosshair;touch-action:none}
 .ov{position:absolute;inset:0;z-index:5;background:rgba(10,13,20,.86);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
 .ov>*{width:min(320px,100%)}
 .ov h2{font-size:2.2rem;color:var(--text);margin:0 0 8px;font-weight:700}
@@ -72,9 +73,19 @@ summary{cursor:pointer;min-height:36px;display:flex;align-items:center}
 .fire.on{filter:brightness(1.25);transform:scale(.94)}
 #tip span{flex:1;text-align:center;color:var(--dim);font-size:.9rem;padding:0 12px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+h1{font-family:Orbitron,"Chakra Petch",sans-serif;font-weight:900;letter-spacing:.1em;text-transform:uppercase;background:linear-gradient(#fff 0,#9ff 38%,#ff2bd6 54%,#ffe066 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 10px rgba(255,43,214,.8))}
+h2{color:#00f0ff;text-shadow:0 0 8px rgba(0,240,255,.7);letter-spacing:.08em}
+.seg button,.mini{background:rgba(18,4,50,.78);border-color:#4a1d96}
+.seg button[aria-pressed=true]{box-shadow:0 0 14px #00f0ff}
+.primary{background:linear-gradient(90deg,#ff2bd6,#ff7a18);border:0;color:#fff;box-shadow:0 0 18px rgba(255,43,214,.7);text-transform:uppercase;letter-spacing:.1em}
+#hud{background:rgba(18,4,50,.9);border-bottom-color:#ff2bd6}
+#cv{border-color:#ff2bd6;box-shadow:0 0 24px rgba(255,43,214,.55)}
+.ov{background:rgba(10,2,33,.9)}
+.ov h2{color:#fff;text-shadow:0 0 14px #ff2bd6}
+.chip{background:rgba(18,4,50,.6)}
 </style>
 </head>
-<body>
+<body class="retro">
 <main id="menu" class="view">
   <div class="card">
     <h1>Overhead Shooter</h1>
@@ -262,10 +273,10 @@ function gameOver(){
 
 /* ---------- Rendering ---------- */
 function draw(){
-  ctx.setTransform(sc,0,0,sc,0,0);ctx.fillStyle='#10151f';ctx.fillRect(0,0,W,H);
+  ctx.setTransform(sc,0,0,sc,0,0);ctx.fillStyle='#0a0221';ctx.fillRect(0,0,W,H);
   if(G.shake>.3&&!RM)ctx.translate((Math.random()-.5)*G.shake,(Math.random()-.5)*G.shake);
-  ctx.strokeStyle='#182032';ctx.lineWidth=1;ctx.beginPath();for(let x=0;x<=W;x+=50){ctx.moveTo(x,0);ctx.lineTo(x,H)}for(let y=0;y<=H;y+=50){ctx.moveTo(0,y);ctx.lineTo(W,y)}ctx.stroke();
-  walls.forEach(w=>{ctx.fillStyle='#2c3347';ctx.fillRect(w.x,w.y,w.w,w.h);ctx.fillStyle='#4a5470';ctx.fillRect(w.x,w.y,w.w,3);ctx.strokeStyle='#4a5470';ctx.lineWidth=2;ctx.strokeRect(w.x,w.y,w.w,w.h)});
+  ctx.strokeStyle='#2a0f5e';ctx.lineWidth=1;ctx.beginPath();for(let x=0;x<=W;x+=50){ctx.moveTo(x,0);ctx.lineTo(x,H)}for(let y=0;y<=H;y+=50){ctx.moveTo(0,y);ctx.lineTo(W,y)}ctx.stroke();
+  walls.forEach(w=>{ctx.fillStyle='#2a1060';ctx.fillRect(w.x,w.y,w.w,w.h);ctx.fillStyle='#8a2cff';ctx.fillRect(w.x,w.y,w.w,3);ctx.strokeStyle='#4a5470';ctx.lineWidth=2;ctx.strokeRect(w.x,w.y,w.w,w.h)});
   parts.forEach(q=>{ctx.globalAlpha=q.l/q.m;ctx.fillStyle=q.c;ctx.fillRect(q.x-q.z/2,q.y-q.z/2,q.z,q.z)});ctx.globalAlpha=1;
   enemies.forEach(e=>{ctx.fillStyle=e.flash>0?'#fff':'#ff6b5e';ctx.beginPath();ctx.arc(e.x,e.y,e.r,0,7);ctx.fill();
     ctx.fillStyle='#2a0f12';const ex=Math.cos(e.ang),ey=Math.sin(e.ang);for(const s of[-1,1]){ctx.beginPath();ctx.arc(e.x+ex*5-ey*4*s,e.y+ey*5+ex*4*s,2.6,0,7);ctx.fill()}

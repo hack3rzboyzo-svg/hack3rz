@@ -1,4 +1,5 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"><title>Maze Muncher</title></head><body>
+<script src="sfx.js"></script>
 <script src="arcade.js"></script>
 <script>
 const A=Arcade.mount({id:'muncher',title:'MAZE MUNCHER',w:456,h:520,pad:'LRUD',help:'ARROWS OR D-PAD · EAT ALL DOTS · POWER PELLETS TURN THE TABLES',init:reset});
@@ -13,7 +14,7 @@ function place(){
   gs=[[9,7,0],[8,9,2],[9,9,5],[10,9,8]].map(([x,y,h],i)=>({x,y,dx:i?0:-1,dy:0,p:0,h:Math.max(0,h-lvl*.5),e:0,ins:i>0}));
   fr=0;wait=1.5;
 }
-function reset(){lvl=1;sc=0;lives=3;over=0;tm=0;ge=0;build();place();A.run(tick)}
+function reset(){lvl=1;sc=0;lives=3;over=0;tm=0;ge=0;build();place();SFX.play('start');A.run(tick)}
 function pch(){
   const e=pc;
   if((e.wx||e.wy)&&can(e.x+e.wx,e.y+e.wy)){e.dx=e.wx;e.dy=e.wy}
@@ -22,8 +23,8 @@ function pch(){
 }
 function eat(){
   const t=M[pc.y][pc.x];
-  if(t=='.'){M[pc.y][pc.x]=' ';sc+=10;dots--}
-  else if(t=='o'){M[pc.y][pc.x]=' ';sc+=50;dots--;fr=Math.max(2,8-lvl*.6);ge=0}
+  if(t=='.'){M[pc.y][pc.x]=' ';sc+=10;dots--;SFX.play('waka')}
+  else if(t=='o'){M[pc.y][pc.x]=' ';sc+=50;dots--;SFX.play('power');fr=Math.max(2,8-lvl*.6);ge=0}
 }
 function gch(g,i){
   const gd=g.ins||g.e,fe=fr>0&&!g.e&&!g.ins;
@@ -35,7 +36,7 @@ function gch(g,i){
 }
 function die(){
   if(wait>0)return;
-  lives--;
+  lives--;SFX.play('die');
   if(lives<=0){over=1;draw();A.over(sc)}else place();
 }
 const want=(x,y)=>{
@@ -50,7 +51,7 @@ function tick(dt){
   if(fr>0)fr-=dt;
   const e=pc;e.p+=6.5*dt;
   while(e.p>=1){e.p-=1;if(e.dx||e.dy){e.x=(e.x+e.dx+19)%19;e.y+=e.dy;eat()}pch()}
-  if(dots<=0){lvl++;sc+=lvl*500;build();place();draw();return}
+  if(dots<=0){SFX.play('levelup');lvl++;sc+=lvl*500;build();place();draw();return}
   gs.forEach((g,i)=>{
     if(g.h>0){g.h-=dt;if(g.h<=0)gch(g,i);return}
     const sp=g.e?10:fr>0&&!g.ins?3.2:Math.min(7,5+lvl*.25);g.p+=sp*dt;
@@ -61,17 +62,17 @@ function tick(dt){
       gch(g,i);
     }
     const a=pos(g),b=pos(pc);
-    if(!g.e&&Math.hypot(a.x-b.x,a.y-b.y)<.6){if(fr>0&&!g.ins){g.e=1;sc+=200*2**ge++}else die()}
+    if(!g.e&&Math.hypot(a.x-b.x,a.y-b.y)<.6){if(fr>0&&!g.ins){g.e=1;SFX.play('eatghost');sc+=200*2**ge++}else die()}
   });
   draw();
 }
 function draw(){
-  c.fillStyle='#000';c.fillRect(0,0,456,520);
+  c.fillStyle='#05010f';c.fillRect(0,0,456,520);
   for(let y=0;y<20;y++)for(let x=0;x<19;x++){
     const t=M[y][x],X=x*Z,Y=Y0+y*Z;
-    if(t=='#'){c.fillStyle='#2a3cff';c.fillRect(X+1,Y+1,Z-2,Z-2);c.fillStyle='#050530';c.fillRect(X+5,Y+5,Z-10,Z-10)}
+    if(t=='#'){c.fillStyle='#b026ff';c.fillRect(X+1,Y+1,Z-2,Z-2);c.fillStyle='#12033a';c.fillRect(X+5,Y+5,Z-10,Z-10)}
     else if(t=='-'){c.fillStyle='#fbf';c.fillRect(X,Y+10,Z,3)}
-    else if(t=='.'){c.fillStyle='#fdb';c.fillRect(X+10,Y+10,4,4)}
+    else if(t=='.'){c.fillStyle='#ffb3ec';c.fillRect(X+10,Y+10,4,4)}
     else if(t=='o'&&(tm*4|0)%2){c.fillStyle='#fff';c.beginPath();c.arc(X+12,Y+12,6,0,7);c.fill()}
   }
   const q=pos(pc),X=q.x*Z+12,Y=Y0+q.y*Z+12,m=.05+Math.abs(Math.sin(tm*14))*.35;

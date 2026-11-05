@@ -1,4 +1,5 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"><title>Block Smash</title></head><body>
+<script src="sfx.js"></script>
 <script src="arcade.js"></script>
 <script>
 const A=Arcade.mount({id:'smash',title:'BLOCK SMASH',w:400,h:620,pad:'',help:'DRAG PIECES ONTO THE GRID · KEYS: ARROWS MOVE, Z PICK PIECE, SPACE PLACE',init:reset});
@@ -18,15 +19,15 @@ function place(i,x,y){
   sc+=p.m.flat().filter(Boolean).length;tray[i]=null;
   const R=[],C=[];for(let k=0;k<8;k++){if(g[k].every(Boolean))R.push(k);if(g.every(r=>r[k]))C.push(k)}
   const n=R.length+C.length;
-  if(n){sc+=n*n*10*(1+st);st++;R.forEach(r=>g[r].fill(0));C.forEach(k=>g.forEach(r=>r[k]=0))}else st=0;
+  if(n){sc+=n*n*10*(1+st);st++;R.forEach(r=>g[r].fill(0));C.forEach(k=>g.forEach(r=>r[k]=0));SFX.play('clear',n);if(st>1)SFX.play('combo',st)}else{st=0;SFX.play('place')}
   if(!tray.some(Boolean))deal();
   sel=Math.max(0,tray.findIndex(Boolean));
   if(!tray.some(p=>p&&any(p.m))){end=1;draw();A.over(sc)}
 }
 const pos=e=>{const r=A.c.getBoundingClientRect();return{x:(e.clientX-r.left)*400/r.width,y:(e.clientY-r.top)*620/r.height}};
-A.c.onpointerdown=e=>{kb=0;const q=pos(e),i=q.x/133.4|0;if(!end&&q.y>440&&tray[i]){drag={i,...q};sel=i;A.c.setPointerCapture(e.pointerId)}};
+A.c.onpointerdown=e=>{kb=0;const q=pos(e),i=q.x/133.4|0;if(!end&&q.y>440&&tray[i]){drag={i,...q};sel=i;SFX.play('pick');A.c.setPointerCapture(e.pointerId)}};
 A.c.onpointermove=e=>{if(drag)Object.assign(drag,pos(e))};
-A.c.onpointerup=A.c.onpointercancel=()=>{if(drag){const s=snap(drag),i=drag.i;drag=null;if(fits(tray[i].m,s.x,s.y))place(i,s.x,s.y)}};
+A.c.onpointerup=A.c.onpointercancel=()=>{if(drag){const s=snap(drag),i=drag.i;drag=null;if(fits(tray[i].m,s.x,s.y))place(i,s.x,s.y);else SFX.play('bad')}};
 A.press('L',()=>{kb=1;cur.x=Math.max(0,cur.x-1)},120);
 A.press('R',()=>{kb=1;cur.x=Math.min(7,cur.x+1)},120);
 A.press('U',()=>{kb=1;cur.y=Math.max(0,cur.y-1)},120);
@@ -36,11 +37,11 @@ A.press('A',()=>{kb=1;if(!end&&tray[sel]&&fits(tray[sel].m,cur.x,cur.y))place(se
 const blk=(x,y,s,col,a)=>{c.globalAlpha=a||1;c.fillStyle=col;c.fillRect(x+1,y+1,s-2,s-2);c.fillStyle='rgba(255,255,255,.3)';c.fillRect(x+1,y+1,s-2,4);c.globalAlpha=1},
 shape=(m,x,y,s,col,a)=>m.forEach((r,j)=>r.forEach((v,i)=>v&&blk(x+i*s,y+j*s,s,col,a)));
 function draw(){
-  c.fillStyle='#07040f';c.fillRect(0,0,400,620);
+  c.fillStyle='#0a0221';c.fillRect(0,0,400,620);
   c.font='14px "Press Start 2P",monospace';c.fillStyle='#ff0';c.fillText('SCORE '+sc,16,36);
   if(st>1){c.fillStyle='#f0f';c.fillText('x'+st,330,36)}
   for(let y=0;y<8;y++)for(let x=0;x<8;x++){
-    if(g[y][x])blk(O+x*Z,Y+y*Z,Z,K[g[y][x]-1]);else{c.fillStyle='#14102a';c.fillRect(O+x*Z+1,Y+y*Z+1,Z-2,Z-2)}
+    if(g[y][x])blk(O+x*Z,Y+y*Z,Z,K[g[y][x]-1]);else{c.fillStyle='#1d0a4a';c.fillRect(O+x*Z+1,Y+y*Z+1,Z-2,Z-2)}
   }
   let gp=null;
   if(drag){const s=snap(drag);if(fits(tray[drag.i].m,s.x,s.y))gp={...s,i:drag.i}}

@@ -1,4 +1,5 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"><title>Stack Attack</title></head><body>
+<script src="sfx.js"></script>
 <script src="arcade.js"></script>
 <script>
 const A=Arcade.mount({id:'stack',title:'STACK ATTACK',w:420,h:600,pad:'LRUDA',help:'← → MOVE · ↑ ROTATE · ↓ SOFT DROP · SPACE HARD DROP',init:reset});
@@ -11,17 +12,17 @@ rot=m=>m[0].map((_,i)=>m.map(r=>r[i]).reverse()),
 lv=()=>1+(li/10|0);
 function spawn(){p=mk(nx);nx=nb();if(!ok(p.m,p.x,p.y)){dead=1;draw();A.over(sc)}}
 function reset(){g=Array.from({length:20},()=>Array(10).fill(0));bag=[];sc=li=t=dead=0;nx=nb();spawn();A.run(tick)}
-function lock(){p.m.forEach((r,j)=>r.forEach((v,i)=>{if(v&&p.y+j>=0)g[p.y+j][p.x+i]=p.i+1}));let n=0;g=g.filter(r=>r.some(v=>!v)||(n++,0));while(g.length<20)g.unshift(Array(10).fill(0));if(n){li+=n;sc+=[0,100,300,500,800][n]*lv()}spawn()}
+function lock(){p.m.forEach((r,j)=>r.forEach((v,i)=>{if(v&&p.y+j>=0)g[p.y+j][p.x+i]=p.i+1}));let n=0;g=g.filter(r=>r.some(v=>!v)||(n++,0));while(g.length<20)g.unshift(Array(10).fill(0));if(n){const l0=lv();li+=n;sc+=[0,100,300,500,800][n]*lv();SFX.play('clear',n);if(lv()>l0)setTimeout(()=>SFX.play('levelup'),350)}else SFX.play('land');spawn()}
 function drop(){if(ok(p.m,p.x,p.y+1)){p.y++;return 1}lock();return 0}
 function tick(dt){t+=dt;if(t>Math.max(80,800-(lv()-1)*70)){t=0;drop()}draw()}
-A.press('L',()=>{if(!dead&&ok(p.m,p.x-1,p.y))p.x--},90);
-A.press('R',()=>{if(!dead&&ok(p.m,p.x+1,p.y))p.x++},90);
-A.press('U',()=>{if(dead)return;const m=rot(p.m);for(const k of[0,-1,1,-2,2])if(ok(m,p.x+k,p.y)){p.m=m;p.x+=k;return}});
+A.press('L',()=>{if(!dead&&ok(p.m,p.x-1,p.y)){p.x--;SFX.play('move')}},90);
+A.press('R',()=>{if(!dead&&ok(p.m,p.x+1,p.y)){p.x++;SFX.play('move')}},90);
+A.press('U',()=>{if(dead)return;const m=rot(p.m);for(const k of[0,-1,1,-2,2])if(ok(m,p.x+k,p.y)){p.m=m;p.x+=k;SFX.play('rotate');return}});
 A.press('D',()=>{if(!dead&&drop())sc++},50);
-A.press('A',()=>{if(dead)return;let n=0;while(ok(p.m,p.x,p.y+1)){p.y++;n++}sc+=2*n;lock()});
+A.press('A',()=>{if(dead)return;let n=0;while(ok(p.m,p.x,p.y+1)){p.y++;n++}sc+=2*n;SFX.play('drop');lock()});
 const cell=(x,y,col,a)=>{c.globalAlpha=a||1;c.fillStyle=col;c.fillRect(x+1,y+1,28,28);c.fillStyle='rgba(255,255,255,.35)';c.fillRect(x+1,y+1,28,4);c.globalAlpha=1};
 function draw(){
-c.fillStyle='#07040f';c.fillRect(0,0,420,600);c.strokeStyle='#1a1535';
+c.fillStyle='#0a0221';c.fillRect(0,0,420,600);c.strokeStyle='#3a1580';
 for(let i=0;i<=10;i++){c.beginPath();c.moveTo(i*30,0);c.lineTo(i*30,600);c.stroke()}
 for(let j=0;j<=20;j++){c.beginPath();c.moveTo(0,j*30);c.lineTo(300,j*30);c.stroke()}
 g.forEach((r,j)=>r.forEach((v,i)=>v&&cell(i*30,j*30,C[v-1])));

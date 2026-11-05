@@ -1,90 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="stylesheet" href="retro.css">
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Snake Collection</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: #0d1117;
-    color: #c9f0c9;
-    font-family: 'Courier New', Courier, monospace;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    min-height: 100dvh;
-    padding: 12px;
-    user-select: none;
-    -webkit-user-select: none;
-    -webkit-tap-highlight-color: transparent;
-    overscroll-behavior: none;
-  }
-  h1 { font-size: 2rem; color: #4caf50; letter-spacing: 0.2em; margin-bottom: 0.3em; }
-  .subtitle { font-size: 0.8rem; color: #555; margin-bottom: 2em; }
-  .menu { display: flex; flex-direction: column; gap: 0.6em; width: 100%; max-width: 520px; }
-  .menu-btn {
-    display: flex; align-items: center; gap: 1em;
-    background: #161b22; border: 1px solid #2a4a2a;
-    border-radius: 8px; padding: 0.8em 1.2em; cursor: pointer;
-    transition: border-color 0.15s, background 0.15s; text-align: left;
-  }
-  .menu-btn:hover { border-color: #4caf50; background: #0d2a0d; }
-  .menu-btn .icon { font-size: 1.8rem; }
+  body { color: #e8dcff; font-family: Orbitron, 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; user-select: none; padding: 16px; }
+  h1 { font-weight: 900; font-size: clamp(1.4rem, 6vw, 2.4rem); letter-spacing: 0.16em; margin-bottom: 0.3em; text-align: center;
+       background: linear-gradient(#fff 0, #9ff 38%, #ff2bd6 54%, #ffe066 100%); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 0 10px rgba(255,43,214,.8)); }
+  .subtitle { font-size: 0.8rem; color: #b9a3e8; margin-bottom: 2em; }
+  .menu { display: flex; flex-direction: column; gap: 0.7em; width: 100%; max-width: 540px; }
+  .menu-btn { display: flex; align-items: center; gap: 1em; background: rgba(18,4,50,.78); border: 2px solid #4a1d96; border-radius: 12px; padding: 0.8em 1.2em; cursor: pointer; color: inherit; font-family: inherit;
+              transition: border-color .15s, box-shadow .15s, transform .15s; text-align: left; backdrop-filter: blur(4px); }
+  .menu-btn:hover { border-color: #00f0ff; box-shadow: 0 0 18px rgba(0,240,255,.6); transform: translateY(-2px); }
+  .menu-btn .icon { font-size: 1.8rem; filter: drop-shadow(0 0 8px #ff2bd6); }
   .menu-btn .info { flex: 1; }
-  .menu-btn .name { font-size: 1rem; font-weight: bold; color: #88d888; display: flex; align-items: center; gap: 0.5em; }
-  .menu-btn .desc { font-size: 0.72rem; color: #556655; margin-top: 0.2em; }
-  .badge {
-    font-size: 0.6rem; border: 1px solid; border-radius: 3px;
-    padding: 1px 5px; letter-spacing: 0.08em;
-  }
-  .badge-easy   { color: #4caf50; border-color: #2a5a2a; }
-  .badge-fun    { color: #ffd700; border-color: #5a4a00; }
-  .badge-medium { color: #4090ff; border-color: #1a3a7a; }
-  .badge-hard   { color: #ff8c00; border-color: #7a3a00; }
-  .badge-shoot  { color: #ff4444; border-color: #7a1a1a; }
-  .arrow { color: #2a4a2a; font-size: 1.2rem; }
-  .menu-btn:hover .arrow { color: #4caf50; }
+  .menu-btn .name { font-size: 1rem; font-weight: 700; color: #00f0ff; letter-spacing: .06em; display: flex; align-items: center; gap: 0.5em; text-shadow: 0 0 8px rgba(0,240,255,.7); }
+  .menu-btn .desc { font-size: 0.72rem; color: #b9a3e8; margin-top: 0.25em; }
+  .badge { font-size: 0.6rem; border: 1px solid; border-radius: 4px; padding: 1px 6px; letter-spacing: 0.08em; }
+  .badge-easy   { color: #39ff88; border-color: #39ff88; }
+  .badge-fun    { color: #ffe066; border-color: #ffe066; }
+  .badge-medium { color: #5ee0ff; border-color: #5ee0ff; }
+  .badge-hard   { color: #ff7a18; border-color: #ff7a18; }
+  .badge-shoot  { color: #ff2bd6; border-color: #ff2bd6; }
+  .arrow { color: #ff2bd6; font-size: 1.2rem; }
+  .menu-btn:hover .arrow { color: #ffe066; }
 
-  #game-wrapper { display: none; flex-direction: column; align-items: center; gap: 0.5em; }
-  #game-title { font-size: 1.2rem; letter-spacing: 0.15em; }
-  canvas { display: block; border: 1px solid #2a4a2a; border-radius: 4px; image-rendering: pixelated; cursor: crosshair; touch-action: none; max-width: 100%; max-height: calc(100vh - 250px); max-height: calc(100dvh - 250px); width: auto; height: auto; }
-  .controls { font-size: 0.7rem; color: #3a5a3a; }
-  #hud { font-size: 0.8rem; color: #667766; display: flex; gap: 1.5em; }
-  #menu-back, #restart-btn {
-    margin-top: 0.4em;
-    background: none; border: 1px solid #2a4a2a; color: #4caf50;
-    padding: 0.4em 1.2em; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 0.85rem;
-  }
-  #menu-back:hover, #restart-btn:hover { background: #0d2a0d; }
-  #menu-back, #restart-btn, .menu-btn { touch-action: manipulation; }
-  .home { display: inline-block; color: #4caf50; text-decoration: none; font-size: 0.85rem; margin-bottom: 1em; }
-  .home:hover { text-decoration: underline; }
-  .game-btns { display: flex; gap: 0.6em; }
-  #menu-back, #restart-btn { min-height: 40px; }
-  #dpad { display: none; grid-template-columns: repeat(3, 64px); grid-template-rows: repeat(3, 56px); gap: 6px; margin-top: 0.4em; }
-  #dpad button { background: #161b22; border: 1px solid #2a4a2a; color: #88d888; border-radius: 10px; font-size: 1.3rem; touch-action: manipulation; cursor: pointer; }
-  #dpad button:active { background: #0d2a0d; border-color: #4caf50; }
-  #dpad [data-d="up"]    { grid-column: 2; grid-row: 1; }
-  #dpad [data-d="left"]  { grid-column: 1; grid-row: 2; }
-  #dpad [data-d="right"] { grid-column: 3; grid-row: 2; }
-  #dpad [data-d="down"]  { grid-column: 2; grid-row: 3; }
-  @media (pointer: coarse) { #dpad { display: grid; } }
-  @media (pointer: coarse) and (orientation: landscape) and (max-height: 520px) {
-    #game-title, #game-controls { display: none; }
-    canvas { max-height: calc(100dvh - 90px); }
-    #dpad { position: fixed; left: calc(env(safe-area-inset-left, 0px) + 14px); bottom: 14px; opacity: 0.8; }
-  }
-  @media (max-width: 480px) { h1 { font-size: 1.4rem; } .menu-btn .desc { font-size: 0.7rem; } }
+  #game-wrapper { display: none; flex-direction: column; align-items: center; gap: 0.6em; }
+  #game-title { font-size: 1.2rem; letter-spacing: 0.15em; color: #00f0ff; text-shadow: 0 0 10px #00f0ff; }
+  canvas { display: block; max-width: 100%; border: 3px solid #00f0ff; border-radius: 6px; box-shadow: 0 0 14px #00f0ff, 0 0 44px rgba(255,43,214,.45); image-rendering: pixelated; cursor: crosshair; }
+  .controls { font-size: 0.7rem; color: #b9a3e8; }
+  #hud { font-size: 0.8rem; color: #ffe066; display: flex; gap: 1.5em; }
+  #menu-back { margin-top: 0.4em; background: rgba(0,240,255,.08); border: 2px solid #00f0ff; color: #00f0ff; padding: 0.5em 1.4em; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 0.85rem; box-shadow: 0 0 10px rgba(0,240,255,.4); }
+  #menu-back:hover { background: #00f0ff; color: #0a0221; }
 </style>
 </head>
-<body>
+<body class="retro">
 
 <!-- MENU -->
 <div id="menu-screen">
-  <a class="home" href="index.html">← Back to site</a>
   <h1>🐍 SNAKE COLLECTION</h1>
   <p class="subtitle">Five game modes. One legendary snake.</p>
   <div class="menu">
@@ -137,18 +93,11 @@
   <div class="controls" id="game-controls"></div>
   <canvas id="canvas"></canvas>
   <div id="hud"></div>
-  <div class="game-btns">
-    <button id="menu-back" onclick="goMenu()">← Menu</button>
-    <button id="restart-btn" onclick="restartGame()">↻ Restart</button>
-  </div>
-  <div id="dpad" aria-label="Direction pad">
-    <button data-d="up" aria-label="Up">▲</button>
-    <button data-d="left" aria-label="Left">◀</button>
-    <button data-d="right" aria-label="Right">▶</button>
-    <button data-d="down" aria-label="Down">▼</button>
-  </div>
+  <button id="menu-back" onclick="goMenu()">← Menu</button>
 </div>
 
+<script src="sfx.js">document.addEventListener('click', e => { if (e.target.closest('button')) SFX.play('click'); });
+</script>
 <script>
 // =============================================================================
 // SHARED UTILITIES
@@ -174,15 +123,13 @@ let state = {};
 let loopId = null;
 let rafId = null;
 let lastTime = 0;
-const TOUCH = matchMedia('(pointer: coarse)').matches;
-let aimPtr = null, fireTimer = null, swipe = null, deadAt = 0;
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
 function goMenu() {
   clearInterval(loopId); loopId = null;
   cancelAnimationFrame(rafId); rafId = null;
-  clearInterval(fireTimer); aimPtr = null; swipe = null;
+  canvas.removeEventListener('mousedown', onMouseDown);
   window.removeEventListener('keydown', onKeyDown);
   document.getElementById('menu-screen').style.display = '';
   document.getElementById('game-wrapper').style.display = 'none';
@@ -191,7 +138,6 @@ function goMenu() {
 
 function startGame(m) {
   mode = m;
-  deadAt = 0;
   document.getElementById('menu-screen').style.display = 'none';
   document.getElementById('game-wrapper').style.display = 'flex';
 
@@ -210,26 +156,22 @@ function startGame(m) {
     'doom':      'Arrow keys to move · Click to shoot · R to restart',
   };
   document.getElementById('game-title').textContent = titles[m];
-  const touchControls = {
-    'classic':   'Swipe on the board or use the pad to steer',
-    'golden':    'Swipe or use the pad · Eat the gold apple for power mode',
-    'maze-easy': 'Swipe or use the pad · Avoid blue walls',
-    'maze-hard': 'Swipe or use the pad · Avoid blue walls',
-    'doom':      'Pad to move · Tap or hold on the board to shoot',
-  };
-  document.getElementById('game-controls').textContent = (TOUCH ? touchControls : controls)[m];
+  document.getElementById('game-controls').textContent = controls[m];
 
   if (m === 'doom') {
     canvas.width = 700; canvas.height = 500;
     state = createDoomState();
     canvas.style.cursor = 'crosshair';
+    canvas.addEventListener('mousedown', onMouseDown);
     lastTime = performance.now();
     const doomLoop = () => {
       const now = performance.now();
       const dt = (now - lastTime) / 1000;
       lastTime = now;
-      if (!state.gameOver) state = stepDoom(state, dt);
-      else if (!deadAt) deadAt = now;
+      if (!state.gameOver) { const k0 = state.kills, h0 = state.health; state = stepDoom(state, dt);
+        if (state.kills > k0) SFX.play('kill');
+        if (state.health < h0 && now - (window._ht || 0) > 300) { window._ht = now; SFX.play('hurt'); }
+        if (state.gameOver) SFX.play('snakedie'); }
       drawDoom();
       updateHUD();
       rafId = requestAnimationFrame(doomLoop);
@@ -245,75 +187,37 @@ function startGame(m) {
   window.addEventListener('keydown', onKeyDown);
 }
 
-const DIRS = { up:[0,-1], down:[0,1], left:[-1,0], right:[1,0] };
-const KEY_DIRS = { ArrowUp:'up', ArrowDown:'down', ArrowLeft:'left', ArrowRight:'right', w:'up', s:'down', a:'left', d:'right' };
-
-function steer(name) {
-  if (!mode) return;
-  const [dx, dy] = DIRS[name];
-  if (mode === 'doom') { state.nextDir = { x: dx, y: dy }; return; }
-  const d = { x: dx * CELL, y: dy * CELL };
-  if (!opposite(d, state.moved || state.direction)) state.direction = d;
-}
-
-function restartGame() {
-  if (!mode) return;
-  deadAt = 0;
-  if (mode === 'doom') { state = createDoomState(); lastTime = performance.now(); }
-  else resetSnakeGame();
-}
-
 function onKeyDown(e) {
-  if (e.key.startsWith('Arrow')) e.preventDefault();
-  const dir = KEY_DIRS[e.key.length === 1 ? e.key.toLowerCase() : e.key];
-  if (dir) steer(dir);
-  if (e.key === 'r' || e.key === 'R') restartGame();
-}
+  const dirs = {
+    ArrowUp:    { x: 0, y: -CELL },
+    ArrowDown:  { x: 0, y: CELL },
+    ArrowLeft:  { x: -CELL, y: 0 },
+    ArrowRight: { x: CELL, y: 0 },
+  };
+  const doomDirs = {
+    ArrowUp:    { x: 0, y: -1 },
+    ArrowDown:  { x: 0, y: 1 },
+    ArrowLeft:  { x: -1, y: 0 },
+    ArrowRight: { x: 1, y: 0 },
+  };
+  if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault();
 
-// Pointer input (mouse, touch, pen): shoot in Doom mode, swipe to steer elsewhere
-function canvasPos(e) {
-  const rect = canvas.getBoundingClientRect();
-  return [(e.clientX - rect.left) * (canvas.width / rect.width),
-          (e.clientY - rect.top) * (canvas.height / rect.height)];
-}
-canvas.addEventListener('pointerdown', e => {
-  if (!mode) return;
   if (mode === 'doom') {
-    if (state.gameOver) { if (deadAt && performance.now() - deadAt > 700) restartGame(); return; }
-    const [mx, my] = canvasPos(e);
-    state = shootDoom(state, mx, my);
-    if (e.pointerType !== 'mouse') {           // hold a finger down to keep firing
-      aimPtr = { id: e.pointerId, mx, my };
-      clearInterval(fireTimer);
-      fireTimer = setInterval(() => {
-        if (aimPtr && mode === 'doom') state = shootDoom(state, aimPtr.mx, aimPtr.my);
-      }, 150);
-      canvas.setPointerCapture(e.pointerId);
-    }
+    if (doomDirs[e.key]) state.nextDir = doomDirs[e.key];
+    if (e.key === 'r' || e.key === 'R') { state = createDoomState(); lastTime = performance.now(); }
   } else {
-    swipe = { id: e.pointerId, x: e.clientX, y: e.clientY };
-    canvas.setPointerCapture(e.pointerId);
+    if (dirs[e.key] && !opposite(dirs[e.key], state.direction)) state.direction = dirs[e.key];
+    if (e.key === 'r' || e.key === 'R') resetSnakeGame();
   }
-});
-canvas.addEventListener('pointermove', e => {
-  if (aimPtr && e.pointerId === aimPtr.id) [aimPtr.mx, aimPtr.my] = canvasPos(e);
-  if (swipe && e.pointerId === swipe.id) {
-    const dx = e.clientX - swipe.x, dy = e.clientY - swipe.y;
-    if (Math.hypot(dx, dy) >= 24) {
-      steer(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up'));
-      swipe.x = e.clientX; swipe.y = e.clientY;
-    }
-  }
-});
-const endPointer = e => {
-  if (aimPtr && e.pointerId === aimPtr.id) { aimPtr = null; clearInterval(fireTimer); }
-  if (swipe && e.pointerId === swipe.id) swipe = null;
-};
-canvas.addEventListener('pointerup', endPointer);
-canvas.addEventListener('pointercancel', endPointer);
+}
 
-document.querySelectorAll('#dpad button').forEach(b =>
-  b.addEventListener('pointerdown', e => { e.preventDefault(); steer(b.dataset.d); }));
+function onMouseDown(e) {
+  if (mode !== 'doom') return;
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+  const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+  const a0 = state.ammo; state = shootDoom(state, mx, my); if (state.ammo < a0) SFX.play('shoot');
+}
 
 // =============================================================================
 // SNAKE GAMES (Classic / Golden / Maze)
@@ -325,7 +229,6 @@ function resetSnakeGame() {
     direction: { x: CELL, y: 0 },
     score: 0,
     flash: 0,
-    moved: null,
     gameOver: false,
   };
 
@@ -387,20 +290,19 @@ function snakeTick() {
     y: state.snake[0].y + state.direction.y,
   };
 
-  state.moved = state.direction;
   const outBounds = head.x < 0 || head.x >= W || head.y < 0 || head.y >= H;
   const selfHit = state.snake.some(s => s.x === head.x && s.y === head.y);
   const wallHit = state.walls ? state.walls.has(key(head)) : false;
 
   if (outBounds || selfHit || wallHit) {
-    state.gameOver = true; state.flash = 20;
+    state.gameOver = true; state.flash = 20; SFX.play('snakedie');
     drawSnake(); return;
   }
 
   state.snake.unshift(head);
 
   const now = performance.now();
-  let ate = false;
+  let ate = false; const sc0 = state.score;
 
   if (mode === 'classic') {
     if (head.x === state.apple.x && head.y === state.apple.y) {
@@ -448,6 +350,7 @@ function snakeTick() {
     }
   }
 
+  if (ate && state.score > sc0) SFX.play(state.score - sc0 >= 3 ? 'gold' : 'eat');
   if (!ate) state.snake.pop();
   drawSnake();
   updateHUD();
@@ -455,7 +358,7 @@ function snakeTick() {
 
 function drawSnake() {
   const W = canvas.width, H = canvas.height;
-  ctx.fillStyle = (mode === 'maze-easy' || mode === 'maze-hard') ? '#1a1a26' : '#000000';
+  ctx.fillStyle = (mode === 'maze-easy' || mode === 'maze-hard') ? '#150538' : '#05010f';
   ctx.fillRect(0, 0, W, H);
 
   if (state.flash > 0 && state.flash % 2 === 0) {
@@ -494,7 +397,7 @@ function drawSnake() {
     ctx.fillRect(state.golden.x, state.golden.y, CELL, CELL);
   }
 
-  ctx.fillStyle = '#00c800';
+  ctx.fillStyle = '#39ff88';
   for (const s of state.snake) ctx.fillRect(s.x, s.y, CELL, CELL);
 
   ctx.fillStyle = '#aaa';
@@ -742,7 +645,7 @@ function drawDoom() {
     ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillText('YOU DIED', W/2, H/2-20);
     ctx.fillStyle='#aaa'; ctx.font='18px monospace';
-    ctx.fillText('Press R or tap to restart', W/2, H/2+24);
+    ctx.fillText('Press R to restart', W/2, H/2+24);
   }
 }
 

@@ -2,276 +2,87 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ARCADE</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NEON ARCADE</title>
+<link rel="stylesheet" href="retro.css">
 <style>
-/* ===================================================================
-   Site styles for this page.
-   =================================================================== */
-
-:root {
-  --bg: #0b0d12;
-  --bg-soft: #12151c;
-  --card: #161a23;
-  --border: rgba(255,255,255,0.08);
-  --text: #e8ebf2;
-  --muted: #8b93a7;
-  --accent: #7dd3fc;
-  --accent-strong: #38bdf8;
-  --flame-a: #ff5f3d;
-  --flame-b: #ffb020;
-  --radius: 14px;
-  color-scheme: dark;
-}
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-html { scroll-behavior: smooth; }
-
-body {
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  background:
-    radial-gradient(1200px 600px at 50% -10%, rgba(125,211,252,0.08), transparent 60%),
-    var(--bg);
-  color: var(--text);
-  line-height: 1.5;
-  min-height: 100vh;
-}
-
-a { color: var(--accent); }
-
-.container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
-
-/* ── HEADER ── */
-header.site-header {
-  padding: 56px 20px 48px;
-  text-align: center;
-  background: linear-gradient(180deg, rgba(255,95,61,0.12), transparent);
-  border-bottom: 1px solid var(--border);
-}
-
-header.site-header h1 {
-  font-size: clamp(2rem, 6vw, 3rem);
-  font-weight: 800;
-  letter-spacing: 1px;
-  background: linear-gradient(90deg, var(--flame-a), var(--flame-b));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-header.site-header p {
-  margin-top: 10px;
-  color: var(--muted);
-  font-size: 1rem;
-}
-
-/* ── GENERIC CARD/SECTION ── */
-.card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 24px;
-}
-
-section { margin: 48px 0; }
-
-section > h2 {
-  text-align: center;
-  font-size: 1.4rem;
-  margin-bottom: 20px;
-  letter-spacing: 0.5px;
-}
-
-/* ── CHANNEL BOX ── */
-.channel-box {
-  text-align: center;
-  margin-bottom: 36px;
-}
-
-.channel-box a.handle {
-  color: var(--accent);
-  text-decoration: none;
-  font-size: 1.05rem;
-}
-.channel-box a.handle:hover { text-decoration: underline; }
-
-.subscribe {
-  display: inline-block;
-  margin-top: 16px;
-  background: linear-gradient(90deg, var(--flame-a), var(--flame-b));
-  padding: 12px 26px;
-  border-radius: 999px;
-  color: #140600;
-  text-decoration: none;
-  font-weight: 700;
-  transition: transform 0.15s, box-shadow 0.15s;
-}
-.subscribe:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(255,120,30,0.25); }
-
-/* ── VIDEO GRID ── */
-.video-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
-}
-
-.video-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-
-.video-card .frame-wrap {
-  position: relative;
-  width: 100%;
-  padding-top: 56.25%; /* 16:9 */
-  background: #000;
-}
-
-.video-card iframe {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border: none;
-}
-
-.video-card .video-title {
-  padding: 12px 16px;
-  font-size: 0.9rem;
-  color: var(--muted);
-}
-
-/* ── GAME / DOWNLOAD CARDS ── */
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 20px;
-}
-
-.game-card, .download-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.game-card h3, .download-card h3 { font-size: 1.05rem; }
-.game-card p, .download-card p { color: var(--muted); font-size: 0.9rem; }
-
-.game-card iframe {
-  width: 100%;
-  height: 280px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-}
-
-/* ── BUTTONS / LINKS ── */
-.btn {
-  display: inline-block;
-  padding: 10px 18px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.88rem;
-  text-decoration: none;
-  text-align: center;
-  cursor: pointer;
-  border: 1px solid var(--border);
-  background: var(--bg-soft);
-  color: var(--text);
-  transition: background 0.15s, border-color 0.15s, transform 0.1s;
-}
-.btn:hover { border-color: var(--accent); transform: translateY(-1px); }
-
-.btn.primary {
-  background: rgba(125,211,252,0.12);
-  border-color: rgba(125,211,252,0.4);
-  color: var(--accent-strong);
-}
-.btn.primary:hover { background: rgba(125,211,252,0.2); }
-
-.btn.ghost-red {
-  background: rgba(255,95,61,0.1);
-  border-color: rgba(255,95,61,0.35);
-  color: #ff9a7a;
-}
-
-/* ── EXTRA LINKS GRID ── */
-.link-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 12px;
-}
-.link-grid .btn { width: 100%; }
-
-/* ── FOOTER ── */
-footer.site-footer {
-  text-align: center;
-  padding: 30px 20px;
-  margin-top: 60px;
-  color: var(--muted);
-  border-top: 1px solid var(--border);
-  font-size: 0.85rem;
-}
+*{box-sizing:border-box;margin:0}
+body{font-family:Orbitron,system-ui,sans-serif;color:#f3e8ff;min-height:100vh;padding:28px 16px 60px;display:flex;flex-direction:column;align-items:center;gap:34px;-webkit-tap-highlight-color:transparent}
+.hero{text-align:center;margin-top:18px}
+.hero h1{font-size:clamp(34px,10vw,84px);line-height:1.05}
+.hero p{margin-top:14px;font:12px 'Press Start 2P',monospace;color:#ffe066;text-shadow:0 0 10px #ff7a18;animation:bl 1.1s steps(2) infinite}
+@keyframes bl{50%{opacity:.15}}
+.wrap{width:100%;max-width:1100px}
+h2.sec{font:900 clamp(14px,3.4vw,20px) Orbitron,sans-serif;letter-spacing:.22em;text-align:center;color:#00f0ff;text-shadow:0 0 14px #00f0ff;margin-bottom:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.panel{background:rgba(18,4,50,.74);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);border:2px solid var(--c);border-radius:14px;padding:16px;box-shadow:0 0 16px var(--c),inset 0 0 22px rgba(255,255,255,.04)}
+.panel h3{font:900 14px Orbitron,sans-serif;letter-spacing:.12em;color:var(--c);text-shadow:0 0 10px var(--c);margin-bottom:10px;text-transform:uppercase}
+.lb ol{list-style:none;display:flex;flex-direction:column;gap:7px}
+.lb li{display:flex;justify-content:space-between;gap:8px;font:11px 'Press Start 2P',monospace;color:#fff}
+.lb li b{color:#ffe066;font-weight:400}
+.lb li.dim{color:#8f7bb8;justify-content:center}
+.card{display:flex;flex-direction:column;gap:10px;transition:transform .15s,box-shadow .15s}
+.card:hover{transform:translateY(-4px);box-shadow:0 0 28px var(--c),inset 0 0 22px rgba(255,255,255,.06)}
+.card .ic{font-size:38px;filter:drop-shadow(0 0 10px var(--c))}
+.card p{font-size:12px;line-height:1.5;color:#cdb8f0;flex:1}
+.tag{align-self:flex-start;font:8px 'Press Start 2P',monospace;color:#0a0221;background:var(--c);padding:4px 6px;border-radius:4px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.btn{flex:1;text-align:center;text-decoration:none;font:700 13px Orbitron,sans-serif;letter-spacing:.1em;padding:11px 12px;border-radius:8px;color:#fff;background:linear-gradient(90deg,#ff2bd6,#ff7a18);box-shadow:0 0 14px rgba(255,43,214,.7);text-transform:uppercase;transition:filter .15s}
+.btn:hover{filter:brightness(1.25)}
+.btn.alt{background:transparent;border:1px solid var(--c);color:var(--c);box-shadow:none;flex:0 0 auto;font-size:11px}
+.back{display:inline-block;text-decoration:none;font:700 13px Orbitron,sans-serif;letter-spacing:.14em;color:#00f0ff;border:1px solid #00f0ff;border-radius:8px;padding:12px 20px;box-shadow:0 0 12px rgba(0,240,255,.5)}
+.back:hover{background:#00f0ff;color:#0a0221}
+footer{font:9px 'Press Start 2P',monospace;color:#8f7bb8;text-align:center}
 </style>
 </head>
-<body>
-<header class="site-header">
-  <h1>ARCADE</h1>
-  <p>Pick a game • Beat the high scores</p>
+<body class="retro">
+<header class="hero">
+  <h1 class="chrome">Neon Arcade</h1>
+  <p>★ INSERT COIN ★</p>
 </header>
-<div class="container">
-  <section>
-    <h2>🎮 Games I Coded While Bored</h2>
-    <div class="card-grid">
-      <div class="game-card">
-        <h3>Stack Attack 🧱</h3>
-        <p>Falling blocks. Keyboard or touch. Global high scores.</p>
-        <a class="btn primary" href="stackattack.html">▶ Play</a>
-      </div>
-      <div class="game-card">
-        <h3>Block Smash 💥</h3>
-        <p>Drag pieces, clear rows and columns. Global high scores.</p>
-        <a class="btn primary" href="blocksmash.html">▶ Play</a>
-      </div>
-      <div class="game-card">
-        <h3>Maze Muncher 🟡</h3>
-        <p>Eat the dots, dodge the ghosts. Global high scores.</p>
-        <a class="btn primary" href="mazemuncher.html">▶ Play</a>
-      </div>
-      <div class="game-card">
-        <h3>Hell Corridor 👹</h3>
-        <p>Survive the demon waves. Global high scores.</p>
-        <a class="btn primary" href="hellcorridor.html">▶ Play</a>
-      </div>
-      <div class="game-card">
-        <h3>Snake Game 🐍</h3>
-        <p>Five modes. Works with keyboard or touch.</p>
-        <a class="btn primary" href="snake.html">▶ Play</a>
-        <a class="btn" href="snake.html" download>⬇ Download &amp; Play Offline</a>
-      </div>
-      <div class="game-card">
-        <h3>Multiplayer Shooter Game 🔫</h3>
-        <p>Think you can beat me?</p>
-        <a class="btn primary" href="gun-game.html">▶ Play</a>
-        <a class="btn" href="gun-game.html" download>⬇ Download &amp; Play Offline</a>
-      </div>
-      <div class="game-card">
-        <h3>Free Minecraft 🧱⛏️</h3>
-        <p>Enjoy!</p>
-        <a class="btn primary" href="https://us1.proxysite.com/process.php?d=FvivHw2rssochVut8U5JBdc%3D&amp;b=1&amp;f=norefer">▶ Download</a>
-      </div>
-    </div>
-  </section>
-  <section>
-    <div class="link-grid"><a href="../index.html" class="btn">🏠 Back to Site</a></div>
-  </section>
-</div>
-<footer class="site-footer"><p>Fan Website for JJTHEANIMATOR</p></footer>
+
+<section class="wrap lb">
+  <h2 class="sec">★ HALL OF FAME ★</h2>
+  <div class="grid">
+    <div class="panel" style="--c:#00f0ff"><h3>Stack Attack</h3><ol id="lb-stack"><li class="dim">LOADING…</li></ol></div>
+    <div class="panel" style="--c:#ff2bd6"><h3>Block Smash</h3><ol id="lb-smash"><li class="dim">LOADING…</li></ol></div>
+    <div class="panel" style="--c:#ffe066"><h3>Maze Muncher</h3><ol id="lb-muncher"><li class="dim">LOADING…</li></ol></div>
+    <div class="panel" style="--c:#ff7a18"><h3>Hell Corridor</h3><ol id="lb-hell"><li class="dim">LOADING…</li></ol></div>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2 class="sec">SELECT YOUR GAME</h2>
+  <div class="grid">
+    <div class="panel card" style="--c:#00f0ff"><span class="ic">🧱</span><h3>Stack Attack</h3><p>Falling blocks. Clear lines, level up, chase the high score.</p><span class="tag">HIGH SCORES</span><div class="row"><a class="btn" href="stackattack.html">▶ Play</a></div></div>
+    <div class="panel card" style="--c:#ff2bd6"><span class="ic">💥</span><h3>Block Smash</h3><p>Drag pieces onto the grid and smash full rows and columns.</p><span class="tag">HIGH SCORES</span><div class="row"><a class="btn" href="blocksmash.html">▶ Play</a></div></div>
+    <div class="panel card" style="--c:#ffe066"><span class="ic">🟡</span><h3>Maze Muncher</h3><p>Eat every dot, dodge the ghosts, grab a power pellet.</p><span class="tag">HIGH SCORES</span><div class="row"><a class="btn" href="mazemuncher.html">▶ Play</a></div></div>
+    <div class="panel card" style="--c:#ff7a18"><span class="ic">👹</span><h3>Hell Corridor</h3><p>First-person demon waves. Survive as long as you can.</p><span class="tag">HIGH SCORES</span><div class="row"><a class="btn" href="hellcorridor.html">▶ Play</a></div></div>
+    <div class="panel card" style="--c:#39ff88"><span class="ic">🐍</span><h3>Snake Collection</h3><p>Five modes. Works with keyboard or touch.</p><div class="row"><a class="btn" href="snake.html">▶ Play</a><a class="btn alt" href="snake.html" download>⬇ Offline</a></div></div>
+    <div class="panel card" style="--c:#8a2cff"><span class="ic">🔫</span><h3>Multiplayer Shooter</h3><p>Think you can beat me?</p><div class="row"><a class="btn" href="gun-game.html">▶ Play</a><a class="btn alt" href="gun-game.html" download>⬇ Offline</a></div></div>
+    <div class="panel card" style="--c:#5ee0ff"><span class="ic">⛏️</span><h3>Free Minecraft</h3><p>Enjoy!</p><div class="row"><a class="btn" href="https://us1.proxysite.com/process.php?d=FvivHw2rssochVut8U5JBdc%3D&amp;b=1&amp;f=norefer" target="_blank" rel="noopener">▶ Download</a></div></div>
+  </div>
+</section>
+
+<a class="back" href="../index.html">◀ Back to site</a>
+<footer>FAN WEBSITE FOR JJTHEANIMATOR</footer>
+
+<script src="sfx.js"></script>
+<script>
+const W='https://slave01.hack3rzboyzo.workers.dev/',
+esc=s=>String(s).replace(/[&<>"]/g,c=>'&#'+c.charCodeAt()+';'),
+medal=['🥇','🥈','🥉','4.','5.'];
+['stack','smash','muncher','hell'].forEach(async id=>{
+  const el=document.getElementById('lb-'+id);
+  try{
+    const r=await(await fetch(W+'scores?game='+id)).json();
+    el.innerHTML=r.scores.slice(0,5).map((e,i)=>`<li><span>${medal[i]} ${esc(e.n)}</span><b>${e.s}</b></li>`).join('')||'<li class="dim">NO SCORES YET</li>';
+  }catch(e){el.innerHTML='<li class="dim">OFFLINE</li>'}
+});
+document.querySelectorAll('a.btn,a.back').forEach(a=>{
+  a.addEventListener('pointerenter',()=>SFX.play('hover'));
+  a.addEventListener('click',()=>SFX.play('click'));
+});
+</script>
 </body>
 </html>
