@@ -60,9 +60,6 @@ body{
 .btn:active{transform:scale(.97)}
 .btn:focus-visible{outline:2px solid var(--g3);outline-offset:4px}
 .thanks{min-height:1.6em;margin:16px 0 0;font-style:italic;color:var(--g2)}
-.snd{position:fixed;right:14px;top:calc(12px + env(safe-area-inset-top,0px));z-index:5;padding:8px 16px;font:inherit;font-size:1rem;letter-spacing:.05em;cursor:pointer;color:var(--g3);background:rgba(0,0,0,.6);border:1px solid var(--g2)}
-.snd:focus-visible{outline:2px solid var(--g3);outline-offset:3px}
-.snd[hidden]{display:none}
 @media (prefers-reduced-motion:reduce){.gift{animation:none;background-position:0 0}.btn{transition:none}}
 </style>
 </head>
@@ -102,38 +99,12 @@ body{
   <p class="thanks" id="thanks" aria-live="polite"></p>
 </main>
 <audio id="song" src="celebrate.mp3" preload="auto" loop></audio>
-<button class="snd" id="snd" type="button" aria-pressed="false" hidden>Sound off</button>
 <script>
 (function(){
   var song=document.getElementById('song'),
-      snd=document.getElementById('snd'),
       open=document.getElementById('open'),
       thanks=document.getElementById('thanks'),
-      muted=false,
       started=false;
-
-  function ui(){
-    var on=!song.paused;
-    snd.textContent=on?'Sound on':'Sound off';
-    snd.setAttribute('aria-pressed',on?'true':'false');
-  }
-
-  function play(){
-    var p=song.play();
-    if(p&&p.then){
-      p.then(function(){ui()}).catch(function(){muted=true;ui()});
-    }
-  }
-
-  song.addEventListener('play',ui);
-  song.addEventListener('pause',ui);
-  song.addEventListener('error',function(){snd.hidden=true});
-
-  // Sound toggle only matters once playback has begun
-  snd.addEventListener('click',function(){
-    if(song.paused){muted=false;play()}
-    else{muted=true;song.pause();ui()}
-  });
 
   open.addEventListener('click',function(){
     thanks.textContent='Gift accepted. Enjoy your placeholder.';
@@ -141,12 +112,7 @@ body{
 
     if(started)return;
     started=true;
-
-    if(song.error){snd.hidden=true;return}
-
-    snd.hidden=false;
-    if(!muted)play();          // loop attribute keeps it running
-    else ui();
+    if(!song.error) song.play().catch(function(){});
   });
 })();
 </script>
