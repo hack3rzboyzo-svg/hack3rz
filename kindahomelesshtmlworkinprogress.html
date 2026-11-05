@@ -43,6 +43,26 @@
     a.btn-link:active {
       background: #d5d5d5;
     }
+
+    /* Image buttons: shrink padding so the button hugs the picture */
+    a.btn-link.img-btn {
+      padding: 3px;
+      line-height: 0;
+    }
+    a.btn-link.img-btn img {
+      display: block;
+      width: 50px;
+      height: 50px;
+      border-radius: 2px;
+    }
+
+    /* Crop the myinstants widget so the blue title under the button is hidden */
+    .sound iframe {
+      width: 110px;
+      height: 72px;
+      border: 0;
+      overflow: hidden;
+    }
   </style>
 </head>
 <body>
@@ -117,14 +137,15 @@ wowowoowowowowow
 
   <!-- Image link play button -->
   <div class="sound" data-label="Wolf">
-    <a href="javascript:void(0)" onclick="document.getElementById('myAudio').play()">
-      <img src="./pics/wolf.png" alt="Play Sound" style="width:50px; height:50px;">
+    <a class="btn-link img-btn" href="javascript:void(0)" onclick="document.getElementById('myAudio').play()">
+      <img src="./pics/wolf.png" alt="Play Sound">
     </a>
   </div>
 </div>
 
 <div>
   <button>free robux</button>
+  <button onclick="location.href='celebrate.html'">placeholder</button>
 </div>
 
 <form>
