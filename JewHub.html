@@ -1,9 +1,103 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JewHub</title>
+<link id="favicon" rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23ff9000'/%3E%3Ctext x='32' y='46' font-size='40' font-family='Arial' font-weight='bold' text-anchor='middle' fill='%23000'%3EJ%3C/text%3E%3C/svg%3E">
+<style>
+*{box-sizing:border-box}html,body{margin:0}html{scroll-behavior:smooth}
+body{background:#0e0e0e;color:#fff;font:14px/1.45 Helvetica,Arial,sans-serif}
+a{color:inherit;text-decoration:none}img{display:block}button{font-family:inherit}
+.acc{height:3px;background:#ff9000}
+header{position:sticky;top:0;z-index:50;background:#141414;border-bottom:1px solid #262626}
+.tb{display:flex;align-items:center;gap:16px;padding:10px 18px}
+.logo{font-size:27px;font-weight:900;letter-spacing:-1.2px;background:none;border:0;color:#fff;cursor:pointer;padding:0;white-space:nowrap}
+.logo span{color:#ff9000}
+.sf{flex:1;display:flex;max-width:620px;margin:0 auto}
+.sf input{flex:1;min-width:0;background:#1f1f1f;border:1px solid #333;border-right:0;border-radius:22px 0 0 22px;padding:11px 16px;color:#fff;font-size:14px;outline:none}
+.sf input:focus{border-color:#ff9000;background:#262626}
+.sf button{background:#ff9000;border:0;border-radius:0 22px 22px 0;padding:0 20px;cursor:pointer;display:grid;place-items:center}
+.sf svg{width:18px;height:18px;fill:#111}
+.act{display:flex;align-items:center;gap:14px;font-weight:700;font-size:13px;white-space:nowrap}
+.act button{background:none;border:0;color:#fff;font-weight:700;font-size:13px;cursor:pointer;padding:0}
+.act button:hover{color:#ff9000}
+.cta{background:#ff9000!important;color:#111!important;padding:8px 14px;border-radius:20px}
+.who{display:none;align-items:center;gap:8px;font-size:12.5px;color:#ddd}.who.on{display:flex}
+.who .dot{width:26px;height:26px;border-radius:50%;background:#ff9000;color:#111;display:grid;place-items:center;font-weight:900;font-size:12px}
+.cats{display:flex;gap:4px;overflow-x:auto;padding:0 18px 8px;scrollbar-width:none}.cats::-webkit-scrollbar{display:none}
+.cats button{font-size:12.5px;color:#b9b9b9;padding:6px 12px;border-radius:14px;background:#1c1c1c;white-space:nowrap;border:0;cursor:pointer}
+.cats button:hover{background:#2a2a2a;color:#fff}.cats button.on{background:#ff9000;color:#111;font-weight:700}
+main{max-width:1420px;margin:0 auto;padding:20px 18px 60px}
+.hero{position:relative;display:flex;align-items:center;gap:22px;background:linear-gradient(100deg,#1c1c1c,#101010 65%);border:1px solid #262626;border-radius:10px;padding:18px;margin-bottom:26px;overflow:hidden}
+.hero .pic{flex:0 0 128px;width:128px;height:128px;border-radius:50%;overflow:hidden;border:3px solid #ff9000;background:#2a2a2a;display:grid;place-items:center;font-size:44px;font-weight:900;color:#ff9000}
+.hero .pic img{width:100%;height:100%;object-fit:cover;object-position:top center}
+.hero h1{margin:0 0 4px;font-size:22px;display:flex;align-items:center;gap:8px}
+.vb{display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;background:#ff9000;color:#111;font-size:11px;font-weight:900}
+.hero p{margin:0 0 10px;color:#a8a8a8;font-size:13px}
+.tag{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.6px;color:#ff9000;border:1px solid #ff9000;border-radius:4px;padding:2px 7px;margin-bottom:8px}
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+.btn{font-size:12.5px;font-weight:800;padding:9px 16px;border-radius:20px;border:1px solid #3a3a3a;color:#ddd;background:none;cursor:pointer}
+.btn:hover{border-color:#ff9000;color:#ff9000}
+.solid{background:#ff9000;color:#111;border-color:#ff9000}.solid:hover{color:#111;background:#ffa733}
+.sub{background:#1f1f1f}.sub.on{background:#2a2a2a;border-color:#4dbb30;color:#4dbb30}
+.sect{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 14px;flex-wrap:wrap}
+.sect h2{margin:0;font-size:17px}.sect .r{display:flex;align-items:center;gap:10px}
+#count{font-size:12px;color:#8a8a8a}
+select{background:#1c1c1c;color:#ddd;border:1px solid #333;border-radius:16px;padding:6px 10px;font-size:12px;outline:none;cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:18px 16px}
+.card{background:#161616;border-radius:8px;overflow:hidden}.card:hover{background:#1e1e1e}
+.thumb{position:relative;aspect-ratio:16/9;background:#242424;overflow:hidden;display:grid;place-items:center}
+.tl{position:absolute;inset:0;display:block;z-index:1}
+.ph{position:absolute;inset:0;display:grid;place-items:center;font-size:40px;font-weight:900;color:#3d3d3d;background:linear-gradient(135deg,#242424,#191919)}
+.thumb img{position:relative;width:100%;height:100%;object-fit:cover;object-position:center 20%;opacity:0;transition:opacity .25s,transform .25s}
+.thumb img.on{opacity:1}.card:hover .thumb img{transform:scale(1.04)}
+.dur{position:absolute;right:6px;bottom:6px;background:rgba(0,0,0,.82);color:#fff;font-size:11.5px;font-weight:700;padding:1px 5px;border-radius:3px;z-index:2}
+.hd{position:absolute;left:6px;top:6px;background:rgba(0,0,0,.7);color:#ff9000;font-size:10.5px;font-weight:900;padding:1px 4px;border-radius:3px;border:1px solid rgba(255,144,0,.5);z-index:2}
+.fav{position:absolute;right:6px;top:6px;z-index:3;width:24px;height:24px;border-radius:50%;border:0;background:rgba(0,0,0,.65);color:#cfcfcf;font-size:12px;cursor:pointer;display:grid;place-items:center;opacity:0}
+.card:hover .fav,.fav.on{opacity:1}.fav.on{color:#ff3b5c}
+.meta{display:flex;gap:10px;padding:10px 10px 12px}
+.ava{flex:0 0 34px;width:34px;height:34px;border-radius:50%;overflow:hidden;background:#2b2b2b;display:grid;place-items:center;font-size:13px;font-weight:900;color:#ff9000;border:0;padding:0;cursor:pointer;position:relative}
+.ava img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top center;opacity:0;transition:opacity .25s}
+.ava img.on{opacity:1}
+.title{margin:0 0 5px;font-size:13.5px;font-weight:700;line-height:1.32;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}
+.card:hover .title{color:#ff9000}
+.ch{font-size:12px;color:#9a9a9a;display:flex;align-items:center;gap:5px;margin-bottom:3px;cursor:pointer}
+.ch .vb{width:13px;height:13px;font-size:9px}
+.stats{font-size:11.5px;color:#767676}.rate{font-size:11.5px;color:#4dbb30;font-weight:700;margin-top:2px}
+.empty{text-align:center;padding:70px 20px;color:#8a8a8a;grid-column:1/-1}.empty h3{color:#fff;margin:0 0 6px}
+footer{border-top:1px solid #232323;background:#111;padding:34px 18px 44px}
+.fw{max-width:1420px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:22px}
+footer h4{margin:0 0 9px;font-size:12px;letter-spacing:.7px;text-transform:uppercase;color:#ff9000}
+footer button,footer a{display:block;font-size:12.5px;color:#8f8f8f;padding:3px 0;background:none;border:0;text-align:left;cursor:pointer}
+footer button:hover,footer a:hover{color:#fff}
+.legal{max-width:1420px;margin:26px auto 0;font-size:11.5px;color:#5f5f5f;line-height:1.6}
+.modal{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.78);display:none;align-items:flex-start;justify-content:center;padding:60px 18px;overflow:auto}
+.modal.on{display:flex}
+.sheet{background:#181818;border:1px solid #2c2c2c;border-radius:12px;max-width:520px;width:100%;padding:26px;position:relative}
+.sheet h3{margin:0 0 6px;font-size:19px}.sheet p{color:#a5a5a5;font-size:13px;line-height:1.6}
+.sheet label{display:block;font-size:12px;color:#9a9a9a;margin:14px 0 5px;font-weight:700}
+.sheet input{width:100%;background:#101010;border:1px solid #333;border-radius:8px;padding:11px 13px;color:#fff;font-size:14px;outline:none}
+.sheet input:focus{border-color:#ff9000}
+.sheet .x{position:absolute;right:10px;top:8px;background:none;border:0;color:#888;font-size:26px;line-height:1;cursor:pointer}
+.sheet .go{width:100%;margin-top:18px;background:#ff9000;color:#111;border:0;border-radius:8px;padding:12px;font-weight:900;font-size:14px;cursor:pointer}
+.drop{border:2px dashed #3a3a3a;border-radius:10px;padding:34px 18px;text-align:center;color:#8a8a8a;cursor:pointer;margin-top:14px}
+.drop:hover,.drop.hot{border-color:#ff9000;color:#ff9000}
+.prof{display:flex;gap:14px;align-items:center;margin-bottom:14px}
+.prof img,.prof .p2{width:76px;height:76px;border-radius:50%;object-fit:cover;object-position:top center;background:#2a2a2a;display:grid;place-items:center;font-size:30px;font-weight:900;color:#ff9000;border:2px solid #ff9000}
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);background:#ff9000;color:#111;font-weight:800;font-size:13px;padding:11px 18px;border-radius:24px;z-index:300;opacity:0;pointer-events:none;transition:.25s}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.totop{position:fixed;right:20px;bottom:20px;width:44px;height:44px;border-radius:50%;background:#ff9000;color:#111;border:0;font-size:18px;font-weight:900;cursor:pointer;z-index:100;opacity:0;pointer-events:none;transition:.25s}
+.totop.on{opacity:1;pointer-events:auto}
+@media(max-width:640px){.tb{flex-wrap:wrap;gap:10px}.sf{order:3;flex-basis:100%;max-width:none}.hero{flex-direction:column;text-align:center}.grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}.meta{padding:8px}}
+</style>
+</head>
+<body style="background:#0e0e0e;color:#fff;margin:0">
 <div class="acc"></div>
 <header>
   <div class="tb">
     <button class="logo" id="logo">Jew<span>Hub</span></button>
-    <form class="sf" id="sf"><input id="q" placeholder="Search 613 mitzvot worth of videos…" autocomplete="off"><button aria-label="Search"><svg viewBox="0 0 24 24"><path d="M10 2a8 8 0 105.3 14l5.4 5.4 1.4-1.4-5.4-5.4A8 8 0 0010 2zm0 2a6 6 0 110 12 6 6 0 010-12z"></path></svg></button></form>
+    <form class="sf" id="sf"><input id="q" placeholder="Search 613 mitzvot worth of videos…" autocomplete="off"><button aria-label="Search"><svg viewBox="0 0 24 24"><path d="M10 2a8 8 0 105.3 14l5.4 5.4 1.4-1.4-5.4-5.4A8 8 0 0010 2zm0 2a6 6 0 110 12 6 6 0 010-12z"/></svg></button></form>
     <nav class="act">
       <button id="bUp">Upload</button><button id="bIn">Log in</button><button class="cta" id="bUp2">Sign up</button>
       <span class="who" id="who"><span class="dot" id="wDot">U</span><span id="wName"></span><button id="bOut">Log out</button></span>
@@ -25,19 +119,193 @@
     <select id="sort"><option value="trending">Trending</option><option value="new">Newest</option><option value="top">Top Rated</option><option value="az">A – Z</option></select>
   </div></div>
   <div class="grid" id="grid"></div>
-  
+  <noscript><p style="color:#aaa">Enable JavaScript to load the videos.</p></noscript>
 </main>
 <footer>
   <div class="fw">
     <div><h4>JewHub</h4><button data-m="about">About</button><button data-m="blog">Blog</button><button data-m="press">Press</button><button data-m="careers">Careers</button></div>
     <div><h4>Categories</h4><button data-c="comedy">Comedy</button><button data-c="music">Music</button><button data-c="politics">Politics</button><button data-c="sports">Sports</button><button data-c="religion">Religion</button></div>
-    <div><h4>Community</h4><button id="fUp">Upload</button><button data-c="verified">Verified Stars</button><button data-c="favs">My Favorites</button><a href="https://discord.gg/askvenice" rel="noopener">Discord</a></div>
-    <div><h4>Info</h4><button data-m="terms">Terms</button><button data-m="privacy">Privacy</button><button data-m="cookies">Cookies</button><button data-m="dmca">DMCA</button><a href="https://commons.wikimedia.org" rel="noopener">Image Source</a></div>
+    <div><h4>Community</h4><button id="fUp">Upload</button><button data-c="verified">Verified Stars</button><button data-c="favs">My Favorites</button><a href="https://discord.gg/askvenice" target="_blank" rel="noopener">Discord</a></div>
+    <div><h4>Info</h4><button data-m="terms">Terms</button><button data-m="privacy">Privacy</button><button data-m="cookies">Cookies</button><button data-m="dmca">DMCA</button><a href="https://commons.wikimedia.org" target="_blank" rel="noopener">Image Source</a></div>
   </div>
   <div class="legal"><b style="color:#8a8a8a">JewHub</b> — the kosher corner of the internet. A loving parody, not affiliated with Pornhub. Every thumbnail is a real, SFW photo of a real person from Wikipedia / Wikimedia Commons; clicking one opens the original image. Portraits belong to their respective owners.</div>
 </footer>
 <div class="modal" id="modal"><div class="sheet"><button class="x" id="mX">×</button><div id="mB"></div></div></div>
 <div class="toast" id="toast"></div>
 <button class="totop" id="totop">↑</button>
-
-
+<script>
+try{
+var RAW=[
+["Benjamin Netanyahu","Bibi Takes The Podium, Full Presser","politics",1],
+["Albert Einstein","Genius Gets His Hair Blown Out","science",0],
+["Gal Gadot","Wonder Woman Does Her Own Stunts","film",0],
+["Natalie Portman","Padme Teaches You Hebrew","film",0],
+["Jerry Seinfeld","Nothing Happens For 22 Minutes","comedy",0],
+["Larry David","Pretty, Pretty, Pretty Good Compilation","comedy",0],
+["Sacha Baron Cohen","Borat Reads The Torah","comedy",0],
+["Mel Brooks","Two Thousand Year Old Man, Extended","comedy",0],
+["Scarlett Johansson","Black Widow In The Gym","film",0],
+["Barbra Streisand","The Way We Were (4K Remaster)","music",0],
+["Dustin Hoffman","Rain Man Counts Cards","film",0],
+["Steven Spielberg","Director's Cut Marathon","film",0],
+["Bob Dylan","Tangled Up In Blonde","music",0],
+["Leonard Cohen","Hallelujah, Slow And Low","music",0],
+["Mark Zuckerberg","Zuck In A Foam Finger Suit","tech",0],
+["Sergey Brin","PageRank Gets Ranked","tech",0],
+["Ruth Bader Ginsburg","RBG Dissents For 90 Minutes","politics",0],
+["Golda Meir","The Iron Lady Of The Knesset","politics",0],
+["David Ben-Gurion","Declares It In Eleven Minutes","politics",0],
+["Anne Frank","Attic Tour, Uncut","literature",0],
+["Elie Wiesel","Night, Read Aloud","literature",0],
+["Noam Chomsky","Syntax Gets Deep","science",0],
+["Bernie Sanders","Once Again: Millionaires And Billionaires","politics",0],
+["Henry Kissinger","Shuttle Diplomacy At 3AM","politics",0],
+["Jon Stewart","Daily Show Reunion Special","comedy",0],
+["Sarah Silverman","Filthy And Faithful","comedy",0],
+["Amy Schumer","Trainwreck Workout","comedy",0],
+["Adam Sandler","The Chanukah Song, Live","comedy",0],
+["Ben Stiller","Blue Steel Tutorial","comedy",0],
+["Seth Rogen","Laughing At His Own Jokes","comedy",0],
+["Judd Apatow","Apatow Uncut","film",0],
+["Hedy Lamarr","Frequency Hopping, Explained","film",0],
+["Lauren Bacall","Just Put Your Lips Together","film",0],
+["Kirk Douglas","Spartacus In The Bath","film",0],
+["Tony Curtis","Some Like It Hot (Dress Reveal)","film",0],
+["Irving Berlin","White Christmas In July","music",0],
+["George Gershwin","Rhapsody In Blue, Solo Piano","music",0],
+["Itzhak Perlman","Violin Masterclass","music",0],
+["Billy Joel","Piano Man, Extended","music",0],
+["Lenny Kravitz","Let Love Rule, Live","music",0],
+["Drake","Hotline Bling, Bar Mitzvah Edit","music",0,"Drake (musician)"],
+["Paula Abdul","Straight Up Choreo","music",0],
+["Bette Midler","The Divine Miss M","music",0],
+["Joan Rivers","Can We Talk?","comedy",0],
+["Mel Blanc","Voices. All Of Them.","comedy",0],
+["Stan Lee","Excelsior, True Believers","comics",0],
+["Jack Kirby","Pencils And Inks","comics",0],
+["Art Spiegelman","Maus, Panel By Panel","comics",0],
+["Harvey Milk","The Hope Speech","politics",0],
+["Gloria Steinem","Feminism, First Take","politics",0],
+["Shimon Peres","The Long Game","politics",0],
+["Yitzhak Rabin","Shalom, Chaver","politics",0],
+["Moshe Dayan","Eyepatch And Strategy","politics",0],
+["Ariel Sharon","Pulls Out, Uncut","politics",0],
+["Naftali Bennett","High-Tech To High Office","politics",0],
+["Yair Lapid","Yesh Atid, Full Interview","politics",0],
+["Isaac Herzog","The President Addresses","politics",0],
+["Sandy Koufax","Sits Out Yom Kippur, Pitches Perfect","sports",0],
+["Mark Spitz","Seven Golds In The Pool","sports",0],
+["Aly Raisman","Floor Routine, Gold Medal","sports",0],
+["Mila Kunis","Friends With Benefits, Blooper Reel","film",0],
+["Sigmund Freud","Couch Session, Fifty Minutes","science",0],
+["Karl Marx","Das Kapital, Chapter One","philosophy",0],
+["Franz Kafka","Metamorphosis, Read Aloud","literature",0],
+["Emma Lazarus","Give Me Your Tired","literature",0],
+["Sholem Aleichem","Tevye, The Original","literature",0],
+["Woody Allen","Manhattan, Annotated","film",0],
+["Gene Simmons","KISS Bass Solo","music",0],
+["Daniel Radcliffe","Wand Work, Behind The Scenes","film",0],
+["Moses","The Ten Commandments, Long Version","religion",0],
+["Maimonides","Guide For The Perplexed, Part 1","religion",0]];
+var CATS=[["home","Home"],["trending","Trending"],["all","Kosher Certified"],["comedy","Comedy"],["film","Film & TV"],["music","Music"],["politics","Politics"],["sports","Sports"],["science","Science"],["tech","Tech"],["religion","Religion"],["literature","Literature"],["comics","Comics"],["philosophy","Philosophy"],["verified","Verified Stars"],["favs","My Favorites"]];
+var CH=["Zion Studios","Mensch Media","Kibbutz Films","Deli Pictures","Matzah Motion","Challah Channel","Schmear Studios","Bagel Broadcast","Borscht Belt TV","Sabra Cinema"];
+var WHEN=["Today","Yesterday","2 days ago","3 days ago","1 week ago","2 weeks ago"];
+var PEOPLE=RAW.map(function(r,i){return{n:r[0],t:r[1],c:r[2],v:r[3],w:r[4],id:i,views:80000+(i*7919)%9000000,pct:76+(i*11)%23,dur:(3+(i*7)%15)+":"+("0"+((i*13)%60)).slice(-2),ch:CH[i%10],when:WHEN[i%6],wiki:"https://en.wikipedia.org/wiki/"+encodeURIComponent((r[4]||r[0]).replace(/ /g,"_"))}});
+function fmt(n){return n>=1e6?(n/1e6).toFixed(1)+"M":n>=1e3?Math.round(n/1e3)+"K":n}
+var S={get:function(k,d){try{var v=localStorage.getItem("jh_"+k);return v?JSON.parse(v):d}catch(e){return d}},set:function(k,v){try{localStorage.setItem("jh_"+k,JSON.stringify(v))}catch(e){}}};
+var favs=new Set(S.get("favs",[])),subs=new Set(S.get("subs",[])),user=S.get("user",null);
+var st={cat:"home",sort:"trending",q:""},cache={};
+var grid=document.getElementById("grid"),countEl=document.getElementById("count"),headline=document.getElementById("headline"),catsEl=document.getElementById("cats");
+var modal=document.getElementById("modal"),mB=document.getElementById("mB"),toastT;
+function toast(m){var t=document.getElementById("toast");t.textContent=m;t.classList.add("on");clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove("on")},1900)}
+function openM(h){mB.innerHTML=h;modal.classList.add("on");document.body.style.overflow="hidden"}
+function closeM(){modal.classList.remove("on");document.body.style.overflow="";mB.innerHTML=""}
+document.getElementById("mX").onclick=closeM;
+modal.onclick=function(e){if(e.target===modal)closeM()};
+document.addEventListener("keydown",function(e){if(e.key==="Escape")closeM()});
+CATS.forEach(function(c){var b=document.createElement("button");b.textContent=c[1];b.dataset.cat=c[0];if(c[0]==="home")b.className="on";b.onclick=function(){setCat(c[0])};catsEl.appendChild(b)});
+function setCat(k){st.cat=k;[].forEach.call(catsEl.children,function(b){b.classList.toggle("on",b.dataset.cat===k)});
+var m={home:"Trending Now",trending:"Trending Now",all:"Kosher Certified - Everything",verified:"Verified Stars",favs:"My Favorites"};
+var f=CATS.filter(function(c){return c[0]===k})[0];headline.textContent=m[k]||(f?f[1]+" Videos":"Videos");render();window.scrollTo({top:0,behavior:"smooth"})}
+function current(){var a=PEOPLE.slice();
+if(st.cat==="favs")a=a.filter(function(p){return favs.has(p.n)});
+else if(st.cat==="verified")a=a.filter(function(p){return p.v});
+else if(st.cat!=="home"&&st.cat!=="trending"&&st.cat!=="all")a=a.filter(function(p){return p.c===st.cat});
+if(st.q)a=a.filter(function(p){return (p.n+" "+p.t+" "+p.ch).toLowerCase().indexOf(st.q)>-1});
+if(st.sort==="new")a.sort(function(x,y){return x.id-y.id});
+else if(st.sort==="top")a.sort(function(x,y){return y.pct-x.pct});
+else if(st.sort==="az")a.sort(function(x,y){return x.n.localeCompare(y.n)});
+else a.sort(function(x,y){return y.views-x.views});
+return a}
+function render(){var list=current();countEl.textContent=list.length+" videos";grid.innerHTML="";
+if(!list.length){grid.innerHTML='<div class="empty"><h3>Nothing here yet</h3><p>No videos match. Try another category.</p><p><button class="btn solid" id="clr">Clear filters</button></p></div>';
+document.getElementById("clr").onclick=function(){document.getElementById("q").value="";st.q="";setCat("home")};return}
+list.forEach(function(p){var card=document.createElement("article");card.className="card";
+card.innerHTML='<div class="thumb"><div class="ph">'+p.n[0]+'</div><a class="tl" href="'+p.wiki+'" target="_blank" rel="noopener"></a><img alt="'+p.n+'" loading="lazy" referrerpolicy="no-referrer"><span class="hd">HD</span><span class="dur">'+p.dur+'</span><button class="fav'+(favs.has(p.n)?" on":"")+'">&#9829;</button></div><div class="meta"><button class="ava">'+p.n[0]+'<img alt="" loading="lazy" referrerpolicy="no-referrer"></button><div><h3 class="title">'+p.t+'</h3><div class="ch">'+p.ch+' <span class="vb">&#10003;</span></div><div class="stats">'+fmt(p.views)+' views &middot; '+p.when+'</div><div class="rate">'+p.pct+'%</div></div></div>';
+[].forEach.call(card.querySelectorAll("img"),function(im){im.onload=function(){im.classList.add("on")}});
+card.querySelector(".fav").onclick=function(e){e.stopPropagation();toggleFav(p,this)};
+card.querySelector(".ava").onclick=function(){profile(p)};
+card.querySelector(".ch").onclick=function(){profile(p)};
+card.querySelector(".title").onclick=function(){profile(p)};
+grid.appendChild(card);paint(card,p)})}
+function paint(card,p){var link=card.querySelector(".tl"),imgs=card.querySelectorAll("img");
+function done(u){[].forEach.call(imgs,function(im){im.src=u});link.href=u}
+if(cache[p.n])return done(cache[p.n]);
+thumb(p).then(function(u){if(!u)return;cache[p.n]=u;done(u)})}
+function toggleFav(p,b){if(favs.has(p.n)){favs.delete(p.n);b.classList.remove("on");toast("Removed from favorites")}else{favs.add(p.n);b.classList.add("on");toast("Added to favorites")}S.set("favs",Array.from(favs));if(st.cat==="favs")render()}
+var API="https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&redirects=1&prop=pageimages&piprop=thumbnail&pithumbsize=640&titles=";
+var REST="https://en.wikipedia.org/api/rest_v1/page/summary/";
+var COM="https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrnamespace=6&gsrlimit=1&prop=imageinfo&iiprop=url&iiurlwidth=640&gsrsearch=";
+function getJ(u){return fetch(u).then(function(r){return r.json()}).catch(function(){return null})}
+function thumb(p){var t=p.w||p.n;
+return getJ(API+encodeURIComponent(t)).then(function(j){
+var pg=j&&j.query&&j.query.pages;if(pg)for(var k in pg){var th=pg[k]&&pg[k].thumbnail;if(th&&th.source)return th.source}
+return getJ(REST+encodeURIComponent(t.replace(/ /g,"_"))+"?origin=*")}).then(function(s){
+if(s&&s.thumbnail&&s.thumbnail.source)return s.thumbnail.source;
+return getJ(COM+encodeURIComponent(p.n+" portrait"))}).then(function(c){
+var cp=c&&c.query&&c.query.pages;if(cp)for(var k in cp){var ii=cp[k]&&cp[k].imageinfo;if(ii&&ii[0])return ii[0].thumburl||ii[0].url}
+return null}).catch(function(){return null})}
+function profile(p){var img=cache[p.n];
+openM('<div class="prof">'+(img?'<img src="'+img+'" alt="" referrerpolicy="no-referrer">':'<div class="p2">'+p.n[0]+'</div>')+'<div><h3 style="margin:0">'+p.n+' <span class="vb">&#10003;</span></h3><p style="margin:4px 0 0">'+p.ch+' &middot; '+fmt(p.views)+' views &middot; '+p.pct+'% rated</p></div></div><p>Category: <b style="color:#ff9000">'+p.c+'</b>. Ranked #'+(p.id+1)+' of '+PEOPLE.length+'. Runtime '+p.dur+'.</p><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px"><a class="btn solid" href="'+p.wiki+'" target="_blank" rel="noopener">Open Wikipedia</a><button class="btn sub'+(subs.has(p.n)?" on":"")+'" id="mSub">'+(subs.has(p.n)?"Subscribed":"Subscribe")+'</button><button class="btn" id="mFav">'+(favs.has(p.n)?"&#9733; Favorited":"&#9734; Favorite")+'</button></div>');
+document.getElementById("mSub").onclick=function(){var b=this;if(subs.has(p.n)){subs.delete(p.n);b.textContent="Subscribe";b.classList.remove("on");toast("Unsubscribed")}else{subs.add(p.n);b.textContent="Subscribed";b.classList.add("on");toast("Subscribed to "+p.n)}S.set("subs",Array.from(subs))};
+document.getElementById("mFav").onclick=function(){var b=this;if(favs.has(p.n)){favs.delete(p.n);b.textContent="\u2606 Favorite";toast("Removed")}else{favs.add(p.n);b.textContent="\u2605 Favorited";toast("Added")}S.set("favs",Array.from(favs));render()}}
+document.getElementById("bIn").onclick=function(){openM('<h3>Log in</h3><p>Favorites and subscriptions stay in this browser.</p><form id="lf"><label>Email</label><input id="le" type="email" required><label>Password</label><input id="lp" type="password" required><button class="go" type="submit">Log in</button></form>')};
+document.getElementById("bUp2").onclick=function(){openM('<h3>Join JewHub</h3><p>Free forever.</p><form id="uf"><label>Display name</label><input id="un" required><label>Email</label><input id="ue" type="email" required><label>Password</label><input id="up" type="password" minlength="8" required><button class="go" type="submit">Create account</button></form>')};
+document.addEventListener("submit",function(e){
+if(e.target.id==="lf"){e.preventDefault();setUser(document.getElementById("le").value.split("@")[0]||"Mensch");closeM();toast("Welcome back")}
+if(e.target.id==="uf"){e.preventDefault();setUser(document.getElementById("un").value);closeM();toast("Account created")}});
+function setUser(n){user=n;S.set("user",user);document.getElementById("wName").textContent=user;document.getElementById("wDot").textContent=user[0].toUpperCase();document.getElementById("who").classList.add("on");document.getElementById("bIn").style.display="none";document.getElementById("bUp2").style.display="none"}
+document.getElementById("bOut").onclick=function(){user=null;S.set("user",null);document.getElementById("who").classList.remove("on");document.getElementById("bIn").style.display="";document.getElementById("bUp2").style.display="";toast("Logged out")};
+if(user)setUser(user);
+function upload(){openM('<h3>Upload a video</h3><p>Drop a file in, or click to browse.</p><div class="drop" id="drop">Click or drop a file here<input id="file" type="file" accept="video/*,image/*" hidden></div><label>Title</label><input id="uT" placeholder="My Bubbe Reviews The Deli"><label>Category</label><select id="uC" style="width:100%;padding:11px;border-radius:8px">'+CATS.filter(function(c){return ["home","trending","all","verified","favs"].indexOf(c[0])<0}).map(function(c){return '<option value="'+c[0]+'">'+c[1]+'</option>'}).join("")+'</select><button class="go" id="uGo">Publish</button>');
+var drop=document.getElementById("drop"),file=document.getElementById("file"),picked=null;
+function choose(f){if(!f)return;picked=f;drop.textContent="Selected: "+f.name;drop.classList.add("hot")}
+drop.onclick=function(){file.click()};file.onchange=function(){choose(file.files[0])};
+drop.ondragover=function(e){e.preventDefault();drop.classList.add("hot")};
+drop.ondrop=function(e){e.preventDefault();choose(e.dataTransfer.files[0])};
+document.getElementById("uGo").onclick=function(){
+var p={n:user||"You",t:document.getElementById("uT").value.trim()||"Untitled Upload",c:document.getElementById("uC").value,id:0,views:1,pct:100,dur:"0:42",ch:(user?user+"'s Channel":"Your Channel"),when:"Just now",v:0,wiki:"https://en.wikipedia.org/wiki/Upload"};
+PEOPLE.unshift(p);PEOPLE.forEach(function(q,i){q.id=i});
+if(picked&&picked.type.indexOf("image")===0)cache[p.n]=URL.createObjectURL(picked);
+closeM();st.cat="home";[].forEach.call(catsEl.children,function(b){b.classList.toggle("on",b.dataset.cat==="home")});headline.textContent="Trending Now";render();toast("Published")}}
+document.getElementById("bUp").onclick=upload;document.getElementById("fUp").onclick=upload;
+document.getElementById("hProf").onclick=function(){profile(PEOPLE[0])};
+document.getElementById("hAll").onclick=function(){setCat("all")};
+document.getElementById("hSub").onclick=function(){var b=this;if(subs.has("Benjamin Netanyahu")){subs.delete("Benjamin Netanyahu");b.textContent="Subscribe";b.classList.remove("on")}else{subs.add("Benjamin Netanyahu");b.textContent="Subscribed";b.classList.add("on")}S.set("subs",Array.from(subs))};
+[].forEach.call(document.querySelectorAll("[data-c]"),function(b){b.onclick=function(){setCat(b.dataset.c)}});
+var SH={about:["About JewHub","A parody front-end for a site that does not exist. 71 real people, real photographs, fake durations, real filtering."],blog:["The Blog","\u201cRanking Every Deli In Tel Aviv By Vibe.\u201d Also: \u201cWhy Haggling Is A Sport.\u201d"],press:["Press","press@jewhub.example \u2014 we reply within one business day, two if it's Shabbat."],careers:["Careers","Senior Schmear Engineer. Head of Challah Infrastructure. Full remote."],terms:["Terms","The videos are imaginary. The ratings are imaginary. The bagels are not."],privacy:["Privacy","No trackers, no cookies. Favorites and logins sit in localStorage only."],cookies:["Cookies","Zero cookies. localStorage only. Clearing site data wipes your taste."],dmca:["Licensing","Portraits come from Wikipedia / Wikimedia Commons and belong to their owners. Non-commercial parody, not affiliated with Pornhub."]};
+[].forEach.call(document.querySelectorAll("[data-m]"),function(b){b.onclick=function(){var s=SH[b.dataset.m];if(s)openM("<h3>"+s[0]+"</h3><p>"+s[1]+"</p>")}});
+document.getElementById("logo").onclick=function(){document.getElementById("q").value="";st.q="";document.getElementById("sort").value="trending";st.sort="trending";setCat("home");toast("Back to the front page")};
+document.getElementById("sf").onsubmit=function(e){e.preventDefault();st.q=document.getElementById("q").value.trim().toLowerCase();render()};
+document.getElementById("q").oninput=function(e){st.q=e.target.value.trim().toLowerCase();render()};
+document.getElementById("sort").onchange=function(e){st.sort=e.target.value;render()};
+var tt=document.getElementById("totop");tt.onclick=function(){window.scrollTo({top:0,behavior:"smooth"})};
+window.onscroll=function(){tt.classList.toggle("on",window.scrollY>500)};
+thumb({n:"Benjamin Netanyahu"}).then(function(u){if(!u)return;cache["Benjamin Netanyahu"]=u;document.getElementById("favicon").href=u;document.getElementById("heroPic").innerHTML='<img alt="Benjamin Netanyahu" src="'+u+'" referrerpolicy="no-referrer">'});
+render();
+}catch(err){
+document.body.innerHTML='<p style="padding:30px;font-family:Arial;color:#fff">Script error: '+err.message+'</p>';
+}
+</script>
+</body>
+</html>
