@@ -1,0 +1,80 @@
+
+<div class="accent"></div>
+<header>
+  <div class="topbar">
+    <button class="logo" id="logo">Jew<span>Hub</span></button>
+    <form class="search" id="searchForm">
+      <input id="q" placeholder="Search 613 mitzvot worth of videos…" autocomplete="off">
+      <button aria-label="Search"><svg viewBox="0 0 24 24"><path d="M10 2a8 8 0 105.3 14l5.4 5.4 1.4-1.4-5.4-5.4A8 8 0 0010 2zm0 2a6 6 0 110 12 6 6 0 010-12z"></path></svg></button>
+    </form>
+    <nav class="actions">
+      <button id="btnUpload">Upload</button>
+      <button id="btnLogin">Log in</button>
+      <button class="cta" id="btnSignup">Sign up</button>
+      <span class="who" id="who"><span class="dot" id="whoDot">U</span><span id="whoName"></span><button id="btnOut">Log out</button></span>
+    </nav>
+  </div>
+  <nav class="cats" id="cats"></nav>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="pic" id="heroPic">B</div>
+    <div>
+      <span class="tag">FEATURED STAR</span>
+      <h1>Benjamin Netanyahu <span class="vbadge">✓</span></h1>
+      <p>Verified · 14.2M subscribers · 1,180 videos · Bibi has been on camera longer than most of you have been alive.</p>
+      <div class="btns">
+        <button class="btn solid" id="heroProfile">View Profile</button>
+        <button class="btn sub" id="heroSub">Subscribe</button>
+        <button class="btn" id="heroAll">All Videos</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="sect">
+    <h2 id="headline">Trending Now</h2>
+    <div class="right">
+      <span id="count"></span>
+      <select id="sort" aria-label="Sort">
+        <option value="trending">Trending</option>
+        <option value="new">Newest</option>
+        <option value="top">Top Rated</option>
+        <option value="az">A – Z</option>
+      </select>
+    </div>
+  </div>
+  <div class="grid" id="grid"></div>
+</main>
+
+<footer>
+  <div class="fwrap">
+    <div><h4>JewHub</h4>
+      <button data-modal="about">About</button><button data-modal="blog">Blog</button><button data-modal="press">Press</button><button data-modal="careers">Careers</button>
+    </div>
+    <div><h4>Categories</h4>
+      <button data-cat="comedy">Comedy</button><button data-cat="music">Music</button><button data-cat="politics">Politics</button><button data-cat="sports">Sports</button><button data-cat="religion">Religion</button>
+    </div>
+    <div><h4>Community</h4>
+      <button id="fUpload">Upload</button><button data-cat="verified">Verified Stars</button><button data-cat="favs">My Favorites</button>
+      <a href="https://discord.gg/askvenice" rel="noopener">Discord</a>
+    </div>
+    <div><h4>Info</h4>
+      <button data-modal="terms">Terms</button><button data-modal="privacy">Privacy</button><button data-modal="cookies">Cookies</button><button data-modal="dmca">DMCA</button>
+      <a href="https://commons.wikimedia.org" rel="noopener">Image Source</a>
+    </div>
+  </div>
+  <div class="legal">
+    <b>JewHub</b> — the kosher corner of the internet. A loving parody, not affiliated with Pornhub. Every thumbnail is a real, SFW photo of a real person, pulled live from Wikipedia / Wikimedia Commons. Clicking a thumbnail opens the original image. No explicit content anywhere. Portraits belong to their respective owners. Serving 613 categories since the beginning of time.
+  </div>
+</footer>
+
+<div class="modal" id="modal"><div class="sheet" role="dialog" aria-modal="true">
+  <button class="x" id="mClose" aria-label="Close">×</button>
+  <div id="mBody"></div>
+</div></div>
+<div class="toast" id="toast"></div>
+<button class="totop" id="totop" aria-label="Back to top">↑</button>
+
+
+
